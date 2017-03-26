@@ -1,16 +1,12 @@
-# -*- coding: utf-8 -*-
 import math
 
-earth_radius = 3443.89849 #Nautical miles
-local_variation = -0.5 
-my_p = 51.50365, -000.06216
-intercept_west = 241
-intercept_east = 210
 
-t_lat = 51.50312042236328
-t_long = -0.06655333191156387
+#EARTH_RADIUS controls the unit all function return in
+EARTH_RADIUS = 3443.89849 #Nautical miles
 
 def haversine_distance(p1, p2):
+    #Returns the distance between two (lat, lon) tuples
+
     my_lat = math.radians(p1[0])
     my_long = math.radians(p1[1])
     t_lat = math.radians(p2[0])
@@ -25,31 +21,41 @@ def haversine_distance(p1, p2):
 
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
 
-    d = earth_radius * c
+    d = EARTH_RADIUS * c
 
     return d
 
+
 def estimated_position(p1, bearing, speed, elapsed_seconds):
+    #Returns the estimated position of a vessel given the 
+    #last known position (p1) as a (lat, lon) tuple
+    #bearing of the vessel in degrees
+    #speed of the vessel in knots
+    #and time in seconds since the last position was known
+
     t_lat = math.radians(p1[0])
     t_long = math.radians(p1[1])
     bearing = math.radians(bearing)
     distance_travelled = (float(speed)/60/60) * elapsed_seconds
 
     out_lat = math.asin(math.sin(t_lat) \
-                        *math.cos(distance_travelled/earth_radius) \
+                        *math.cos(distance_travelled/EARTH_RADIUS) \
                         + math.cos(t_lat) \
-                        * math.sin(distance_travelled/earth_radius) \
+                        * math.sin(distance_travelled/EARTH_RADIUS) \
                         * math.cos(bearing))
     out_long = t_long \
             + math.atan2(math.sin(bearing) \
-                         * math.sin(distance_travelled/earth_radius) \
+                         * math.sin(distance_travelled/EARTH_RADIUS) \
                          * math.cos(t_lat), \
-                         math.cos(distance_travelled/earth_radius) \
+                         math.cos(distance_travelled/EARTH_RADIUS) \
                          - math.sin(t_lat)*math.sin(out_lat))
 
     return math.degrees(out_lat), math.degrees(out_long)
 
 def intersection(p1, bearing1, p2, bearing2):
+    #Returns a (lat, lon) tuple of the point on which
+    #two vessels paths will cross
+
     lat1 = math.radians(p1[0])
     long1 = math.radians(p1[1])
     bearing1 = math.radians(bearing1)
@@ -139,6 +145,8 @@ def intersection(p1, bearing1, p2, bearing2):
     return math.degrees(lat3), (math.degrees(long3)+540)%360-180 #// normalise to −180..+180°
 
 def bearing(p1, p2):
+    #Returns the bearing (degrees) from p1 to p2
+    #p1 & p2 are both (lat, lon) tuples
     
     lat1 = math.radians(p1[0])
     long1 = math.radians(p1[1])
