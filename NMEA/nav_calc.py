@@ -4,8 +4,8 @@ import math
 #EARTH_RADIUS controls the unit all function return in
 EARTH_RADIUS = 3443.89849 #Nautical miles
 
+#Returns the distance between two (lat, lon) tuples
 def haversine_distance(p1, p2):
-    #Returns the distance between two (lat, lon) tuples
 
     my_lat = math.radians(p1[0])
     my_long = math.radians(p1[1])
@@ -26,12 +26,12 @@ def haversine_distance(p1, p2):
     return d
 
 
+#Returns the estimated position of a vessel given the 
+#last known position (p1) as a (lat, lon) tuple
+#bearing of the vessel in degrees
+#speed of the vessel in knots
+#and time in seconds since the last position was known
 def estimated_position(p1, bearing, speed, elapsed_seconds):
-    #Returns the estimated position of a vessel given the 
-    #last known position (p1) as a (lat, lon) tuple
-    #bearing of the vessel in degrees
-    #speed of the vessel in knots
-    #and time in seconds since the last position was known
 
     t_lat = math.radians(p1[0])
     t_long = math.radians(p1[1])
@@ -52,9 +52,9 @@ def estimated_position(p1, bearing, speed, elapsed_seconds):
 
     return math.degrees(out_lat), math.degrees(out_long)
 
+#Returns a (lat, lon) tuple of the point on which
+#two vessels paths will cross
 def intersection(p1, bearing1, p2, bearing2):
-    #Returns a (lat, lon) tuple of the point on which
-    #two vessels paths will cross
 
     lat1 = math.radians(p1[0])
     long1 = math.radians(p1[1])
@@ -144,9 +144,9 @@ def intersection(p1, bearing1, p2, bearing2):
 
     return math.degrees(lat3), (math.degrees(long3)+540)%360-180 #// normalise to −180..+180°
 
+#Returns the bearing (degrees) from p1 to p2
+#p1 & p2 are both (lat, lon) tuples
 def bearing(p1, p2):
-    #Returns the bearing (degrees) from p1 to p2
-    #p1 & p2 are both (lat, lon) tuples
     
     lat1 = math.radians(p1[0])
     long1 = math.radians(p1[1])
