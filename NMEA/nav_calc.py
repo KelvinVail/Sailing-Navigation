@@ -169,3 +169,8 @@ def bearing(p1, p2):
     b = math.atan2(y, x)
 
     return (math.degrees(b)+360)%360
+
+#TODO Create a function that calculates the shortest distance through a set of
+#gates
+
+#TODO Create a function that calculates distance to a line (i.e. a start line)
