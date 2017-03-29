@@ -1,3 +1,4 @@
+# _*_ coding: utf-8 _*_
 import math
 
 
@@ -174,3 +175,12 @@ def bearing(p1, p2):
 #gates
 
 #TODO Create a function that calculates distance to a line (i.e. a start line)
+
+#TODO Create a VMG function
+
+#CMG
+def CMG(sog, cog, WP_bearing):
+    diff = math.radians(180 - abs(abs(WP_bearing - cog) -180))
+    return math.cos(diff)*sog
+
+
