@@ -176,9 +176,17 @@ def bearing(p1, p2):
 
 #TODO Create a function that calculates distance to a line (i.e. a start line)
 
-#TODO Create a VMG function
+# VMG Velocity Made Good
+# How fast a vessel is approaching a target through the water
+# For use in measuring performance and sail trim
+def VMG(boat_speed, heading, WP_bearing):
+    diff = math.radians(180 - abs(abs(WP_bearing - heading) -180))
+    return math.cos(diff)*boat_speed
 
-#CMG
+# CMG Course Made Good
+# How fast a vessel is approaching a target over the ground.
+# Essentially the same as VMG but I wanted to differenciate between
+# VMG using boat speed (through water) and CMG using GPS speed
 def CMG(sog, cog, WP_bearing):
     diff = math.radians(180 - abs(abs(WP_bearing - cog) -180))
     return math.cos(diff)*sog
