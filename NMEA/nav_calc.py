@@ -53,6 +53,7 @@ def estimated_position(p1, bearing, speed, elapsed_seconds):
 
     return math.degrees(out_lat), math.degrees(out_long)
 
+
 #Returns a (lat, lon) tuple of the point on which
 #two vessels paths will cross
 def intersection(p1, bearing1, p2, bearing2):
@@ -145,6 +146,7 @@ def intersection(p1, bearing1, p2, bearing2):
 
     return math.degrees(lat3), (math.degrees(long3)+540)%360-180 #// normalise to −180..+180°
 
+
 #Returns the bearing (degrees) from p1 to p2
 #p1 & p2 are both (lat, lon) tuples
 def bearing(p1, p2):
@@ -171,10 +173,6 @@ def bearing(p1, p2):
 
     return (math.degrees(b)+360)%360
 
-#TODO Create a function that calculates the shortest distance through a set of
-#gates
-
-#TODO Create a function that calculates distance to a line (i.e. a start line)
 
 # VMG Velocity Made Good
 # How fast a vessel is approaching a target through the water
@@ -183,6 +181,7 @@ def VMG(boat_speed, heading, WP_bearing):
     diff = math.radians(180 - abs(abs(WP_bearing - heading) -180))
     return math.cos(diff)*boat_speed
 
+
 # CMG Course Made Good
 # How fast a vessel is approaching a target over the ground.
 # Essentially the same as VMG but I wanted to differenciate between
@@ -190,5 +189,36 @@ def VMG(boat_speed, heading, WP_bearing):
 def CMG(sog, cog, WP_bearing):
     diff = math.radians(180 - abs(abs(WP_bearing - cog) -180))
     return math.cos(diff)*sog
+
+
+#TODO Create a function that calculates the shortest distance through a set of
+#gates
+
+#TODO Create a function that calculates distance to a line (i.e. a start line)
+def dist_bearing_to_gate(pos, p1, p2):
+
+    # Which post is closest?
+    dist_p1 = haversine_distance(pos ,p1)
+    dist_p2 = haversine_distance(pos, p2)
+
+    if dist_p1 >= dist_p2:
+        closest_post = p2
+        far_post = p1
+        dist = dist_p2
+    else:
+        closest_post = p1
+        far_post = p2
+        dist = dist_p1
+
+    # Is the angle between closest post and the line between posts 
+    # greater than 90 degrees?
+    line_bearing = bearing(closest_post, far_post)
+    post_bearing = bearing(closest_post, pos)
+    diff = 180 - abs(abs(line_bearing -post_bearing) -180)
+    if diff <= 90:
+        return dist, bearing(pos, closest_post)
+    else:
+        #TODO calc bearing to line.  Should be line bearing + 90?
+        return 1
 
 
