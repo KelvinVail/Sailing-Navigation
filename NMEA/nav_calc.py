@@ -1,5 +1,6 @@
 # _*_ coding: utf-8 _*_
 import math
+import pandas as pd
 
 
 #EARTH_RADIUS controls the unit all function return in
@@ -221,4 +222,11 @@ def dist_bearing_to_gate(pos, p1, p2):
         #TODO calc bearing to line.  Should be line bearing + 90?
         return 1
 
+# Returns a list of lat, lon tuples from a csv
+# Expects columns named Latitude and Longitude
+def get_waypoint_list(file_path):
+    df = pd.read_csv(file_path)
+    df['lat_lon'] = list(zip(df.Latitude, df.Longitude)) 
+    lat_lon_list = df['lat_lon'].tolist()
+    return lat_lon_list
 
