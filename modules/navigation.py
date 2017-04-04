@@ -241,4 +241,4 @@ def get_waypoint_details(file_path):
             print(bearing(row['lat_lon'], row['next_lat_lon']))
 
 
-get_waypoint_details('~/MarkListTwo.csv')
+#get_waypoint_details('~/MarkListTwo.csv')
