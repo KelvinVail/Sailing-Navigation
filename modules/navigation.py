@@ -52,7 +52,8 @@ def estimated_position(p1, bearing, speed, elapsed_seconds):
                          math.cos(distance_travelled/EARTH_RADIUS) \
                          - math.sin(t_lat)*math.sin(out_lat))
 
-    return math.degrees(out_lat), math.degrees(out_long)
+    return round(math.degrees(out_lat), 4), \
+            round((math.degrees(out_long)+540)%360-180, 4)
 
 
 #Returns a (lat, lon) tuple of the point on which
@@ -145,7 +146,8 @@ def intersection(p1, bearing1, p2, bearing2):
 
     long3 = long1 + long13
 
-    return math.degrees(lat3), (math.degrees(long3)+540)%360-180 #// normalise to −180..+180°
+    return round(math.degrees(lat3), 4), \
+            round((math.degrees(long3)+540)%360-180, 4) #// normalise to −180..+180°
 
 
 #Returns the bearing (degrees) from p1 to p2
@@ -172,7 +174,7 @@ def bearing(p1, p2):
 
     b = math.atan2(y, x)
 
-    return (math.degrees(b)+360)%360
+    return round((math.degrees(b)+360)%360, 4)
 
 
 # VMG Velocity Made Good
@@ -180,7 +182,7 @@ def bearing(p1, p2):
 # For use in measuring performance and sail trim
 def VMG(boat_speed, heading, WP_bearing):
     diff = math.radians(180 - abs(abs(WP_bearing - heading) -180))
-    return math.cos(diff)*boat_speed
+    return round(math.cos(diff)*boat_speed, 4)
 
 
 # CMG Course Made Good
@@ -189,7 +191,7 @@ def VMG(boat_speed, heading, WP_bearing):
 # VMG using boat speed (through water) and CMG using GPS speed
 def CMG(sog, cog, WP_bearing):
     diff = math.radians(180 - abs(abs(WP_bearing - cog) -180))
-    return math.cos(diff)*sog
+    return round(math.cos(diff)*sog, 4)
 
 
 #TODO Create a function that calculates the shortest distance through a set of
@@ -241,4 +243,5 @@ def get_waypoint_details(file_path):
             print(bearing(row['lat_lon'], row['next_lat_lon']))
 
 
-#get_waypoint_details('~/MarkListTwo.csv')
+if __name__ == '--main__':
+    get_waypoint_details('~/MarkListTwo.csv')
