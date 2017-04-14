@@ -242,6 +242,14 @@ def get_waypoint_details(file_path):
             print(haversine_distance(row['lat_lon'], row['next_lat_lon']))
             print(bearing(row['lat_lon'], row['next_lat_lon']))
 
+def latlon_to_decimal(latlon):
+    deg_min = latlon.split('.')[0]
+    deg = deg_min[:-2]
+    minutes = float(deg_min[-2:] + '.' + latlon.split('.')[1])/60
+    return float(deg) + minutes
 
-if __name__ == '--main__':
-    get_waypoint_details('~/MarkListTwo.csv')
+
+
+
+if __name__ == '__main__':
+    print(get_waypoint_list('~/MarkListTwo.csv'))
