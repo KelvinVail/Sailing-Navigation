@@ -1,3 +1,5 @@
+from datetime import date
+from datetime import datetime
 import navigation as nav
 
 
@@ -5,6 +7,7 @@ class Vessel:
 
     def __init__(self):
         self.first_log = None
+        self.date = date.today()
 
     def NMEAInput(self, nmea_string):
         self.LastNmeaInput = nmea_string
@@ -24,6 +27,11 @@ class Vessel:
                 if line.split(',')[4] == 'W':
                     lon = float('-' + str(lon))
                 self.longitude = lon
+
+                self.time = datetime.strptime(line.split(',')[5], '%H%M%S.%f')
+
+            if head == '$GPRMC': #Set date from GPS
+                self.date = datetime.strptime(line.split(',')[9], '%d%m%y')
 
             if head == '$IIVHW': #Heading & Speed Through Water
                 self.heading_true = float(line.split(',')[1])
@@ -79,9 +87,5 @@ class Vessel:
                                               self.keel,2)
 
 
-#TODO Get GPS timestamp
 #TODO Add backup GPS
-            #Get a timestamp & print line
-#            if head == '$GPRMC':
-#                time = line.split(',')[1].split('.')[0]
-#                date = line.split(',')[9]
+#TODO Add apparent wind calibration/offset

@@ -1,3 +1,5 @@
+from datetime import date
+from datetime import datetime
 import unittest
 from modules.navigation import haversine_distance
 from modules.navigation import estimated_position
@@ -111,6 +113,15 @@ class TestVessel(unittest.TestCase):
         nmea_string = '$IIGLL,5047.3904,S,00107.0134,W,162649.99,A,3*18'
         vessel.NMEAInput(nmea_string)
         actual = vessel.latitude
+        self.assertEqual(expected, actual)
+
+
+    def test_vessel_correctly_sets_timestamp_from_IIGLL(self):
+        vessel = Vessel()
+        expected = datetime.strptime('162649.99', '%H%M%S.%f') 
+        nmea_string = '$IIGLL,5047.3904,N,00107.0134,W,162649.99,A,3*18'
+        vessel.NMEAInput(nmea_string)
+        actual = vessel.time
         self.assertEqual(expected, actual)
 
 
@@ -326,6 +337,24 @@ class TestVessel(unittest.TestCase):
         actual = vessel.keel
         self.assertEqual(expected, actual)
 
+
+    def test_that_today_is_used_as_defualt_date_at_init(self):
+        vessel = Vessel()
+        expected = date.today()
+        actual = vessel.date
+        self.assertEqual(expected, actual)
+
+
+    def test_that_date_is_updated_if_GPRMC_is_present(self):
+        vessel = Vessel()
+        expected = datetime.strptime('190317', '%d%m%y')
+        nmea_string = \
+            '$GPRMC,150558.00,A,5040.73877,N,00058.58538,W,9.712,124.01,190317,,,A*75'
+        vessel.NMEAInput(nmea_string)
+        actual = vessel.date
+        self.assertEqual(expected, actual)
+
+#TODO test true wind speed calculations
 
 if __name__ == '__main__':
     unittest.main()
