@@ -3,6 +3,9 @@ import navigation as nav
 
 class Vessel:
 
+    def __init__(self):
+        self.first_log = None
+
     def NMEAInput(self, nmea_string):
         self.LastNmeaInput = nmea_string
 
@@ -31,45 +34,49 @@ class Vessel:
                 TWA = line.split(',')[1]                          
                 if line.split(',')[2] == 'L':
                     TWA = '-' + TWA
-                self.TWA = TWA
-                self.TWS = line.split(',')[3]
+                self.TWA = float(TWA)
+                self.TWS = float(line.split(',')[3])
 
             if head == '$IIVWR': #Relatvie Wind Angle & Speed
                 AWA = line.split(',')[1]                          
                 if line.split(',')[2] == 'L':
                     AWA = '-' + AWA
-                self.AWA = AWA
-                self.AWS = line.split(',')[3]
+                self.AWA = float(AWA)
+                self.AWS = float(line.split(',')[3])
 
             if head == '$IIVTG': #Track made good and speed over ground
-                self.cog = line.split(',')[1]
-                self.sog = line.split(',')[5]
+                self.cog = float(line.split(',')[1])
+                self.sog = float(line.split(',')[5])
 
             if head == '$IIVLW': #Log
-                self.log = line.split(',')[1]
+                self.log = float(line.split(',')[1])
+                if self.first_log == None:
+                    self.first_log = self.log
+                self.log_distance = self.log - self.first_log
 
             if head == '$IIMTW': #Water Temp
-                self.water_temp = line.split(',')[1]
+                self.water_temp = float(line.split(',')[1])
 
             if head == '$IIXDR': #Heel, Trim, Baro & Rudder
                 data_count = 0
                 for data in line.split(','):
                     data_count += 1
                     if data[:4] == 'HEEL':
-                        self.heel = line.split(',')[data_count - 3]
+                        self.heel = float(line.split(',')[data_count - 3])
                     elif data[:4] == 'TRIM':
-                        self.trim = line.split(',')[data_count - 3]
+                        self.trim = float(line.split(',')[data_count - 3])
                     elif data[:4] == 'BARO':
-                        self.baro = line.split(',')[data_count - 3]
+                        self.baro = float(line.split(',')[data_count - 3])
                     elif data[:4] == 'RUDD':
-                        self.rudder = line.split(',')[data_count - 3]
+                        self.rudder = float(line.split(',')[data_count - 3])
 
             if head == '$IIDBT': #Depth Under Transducer
-                self.depth = line.split(',')[3]
+                self.depth = float(line.split(',')[3])
 
             if head == '$IIDPT': #Depth Under Keel
-                self.keel = line.split(',')[2]
-                self.depth_under_keel = str(float(line.split(',')[1]) + float(keel))
+                self.keel = float(line.split(',')[2])
+                self.depth_under_keel = round(float(line.split(',')[1]) +
+                                              self.keel,2)
 
 
 #TODO Get GPS timestamp
