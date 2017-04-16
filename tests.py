@@ -11,6 +11,8 @@ from modules.navigation import dist_bearing_to_gate
 from modules.navigation import get_waypoint_list
 from modules.navigation import get_waypoint_details
 from modules.navigation import latlon_to_decimal
+from modules.navigation import TWS
+from modules.navigation import TWD
 from modules.vessel import Vessel
 
 #1nm = 1.851999km
@@ -82,6 +84,55 @@ class TestNavigation(unittest.TestCase):
         self.assertAlmostEquals(0.062417, latlon_to_decimal('00003.74502'))
 
 
+    def test_TWS_is_calculated_correctly(self):
+        expected = 35.2
+        sog = 9.9
+        cog = 0
+        AWS = 35
+        AWD = 83.1
+        actual = TWS(sog, cog, AWS, AWD)
+        self.assertEqual(expected, actual)
+
+
+    def test_TWD_is_calculated_correctly(self):
+        expected = 344.4
+        sog = 4.54
+        cog = 34
+        AWS = 8
+        AWD = 10
+        actual = TWD(sog, cog, AWS, AWD)
+        self.assertEqual(expected, actual)
+
+
+    def test_TWD_is_calculated_correctly_2(self):
+        expected = 321.7
+        sog = 15
+        cog = 0
+        AWS = 10
+        AWD = 30
+        actual = TWD(sog, cog, AWS, AWD)
+        self.assertEqual(expected, actual)
+
+
+    def test_TWD_is_calculated_correctly_3(self):
+        expected = 69.0
+        sog = 4.54
+        cog = 34
+        AWS = 8
+        AWD = 50
+        actual = TWD(sog, cog, AWS, AWD)
+        self.assertEqual(expected, actual)
+
+
+    def test_TWS_is_calculated_correctly_2(self):
+        expected = 35.2
+        sog = 9.9
+        cog = 309.9
+        AWS = 35
+        AWD = 33
+        actual = TWS(sog, cog, AWS, AWD)
+        self.assertEqual(expected, actual)
+
     def test_get_waypoint_details(self):
         pass
 
@@ -91,12 +142,14 @@ class TestVessel(unittest.TestCase):
     def setUp(self):
         pass
 
+
     def test_that_vessel_excepts_a_NMEA_string(self):
         vessel = Vessel()
         expected = 'abcd'
         vessel.NMEAInput(expected)
         actual = vessel.LastNmeaInput
         self.assertEqual(expected, actual)
+
 
     def test_vessel_correctly_converts_north_latitude_from_IIGLL(self):
         vessel = Vessel()
@@ -354,7 +407,183 @@ class TestVessel(unittest.TestCase):
         actual = vessel.date
         self.assertEqual(expected, actual)
 
+
+    def test_that_an_increase_boat_speed_indicator_is_returned_correctly(self):
+        vessel = Vessel()
+        expected = '+'
+        nmea_string = '$IIVHW,298.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVHW,298.2,T,301.0,M,9.6,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        actual = vessel.boat_speed_indicator
+        self.assertEqual(expected, actual)
+        
+
+    def test_that_an_decrease_boat_speed_indicator_is_returned_correctly(self):
+        vessel = Vessel()
+        expected = '-'
+        nmea_string = '$IIVHW,298.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVHW,298.2,T,301.0,M,9.4,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        actual = vessel.boat_speed_indicator
+        self.assertEqual(expected, actual)
+
+
+    def test_that_no_change_boat_speed_indicator_is_returned_correctly(self):
+        vessel = Vessel()
+        expected = ''
+        nmea_string = '$IIVHW,298.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVHW,298.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        actual = vessel.boat_speed_indicator
+        self.assertEqual(expected, actual)
+
+
+    def test_that_a_ten_second_average_boat_speed_is_calculated_correctly(self):
+        vessel = Vessel()
+        expected = 10
+        #Outside time limit
+        nmea_string = '$IIGLL,5047.3904,N,00107.0134,W,162649.00,A,3*18'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVHW,298.2,T,301.0,M,100,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        #Inside time limit
+        nmea_string = '$IIGLL,5047.3904,N,00107.0134,W,162650.00,A,3*18'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVHW,298.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIGLL,5047.3904,N,00107.0134,W,162700.00,A,3*18'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVHW,298.2,T,301.0,M,10.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        actual = vessel.boat_speed_avg
+        self.assertEqual(expected, actual)
+
+
+    def test_that_boat_speed_list_is_maintained_correctly(self):
+        vessel = Vessel()
+        expected = 2
+        #Outside time limit
+        nmea_string = '$IIGLL,5047.3904,N,00107.0134,W,162649.00,A,3*18'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVHW,298.2,T,301.0,M,100,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        #Inside time limit
+        nmea_string = '$IIGLL,5047.3904,N,00107.0134,W,162650.00,A,3*18'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVHW,298.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIGLL,5047.3904,N,00107.0134,W,162700.00,A,3*18'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVHW,298.2,T,301.0,M,10.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        actual = len(vessel.boat_speed_list)
+        self.assertEqual(expected, actual)
+
+
+    def test_vessel_correctly_calculates_AWD(self):
+        vessel = Vessel()
+        #heading = 298.2
+        nmea_string = '$IIVHW,298.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        #AWA = 44.8
+        nmea_string = '$IIVWR,44.8,R,35.0,N,18.0,M,64.9,K*5B'
+        vessel.NMEAInput(nmea_string)
+        #AWD = H + AWA = 343
+        expected = 343
+        actual = vessel.AWD
+        self.assertEqual(expected, actual)
+
+
+    def test_vessel_correctly_calculates_AWD_when_result_greater_then_360(self):
+        vessel = Vessel()
+        #heading = 348.2
+        nmea_string = '$IIVHW,348.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        #AWA = 44.8
+        nmea_string = '$IIVWR,44.8,R,35.0,N,18.0,M,64.9,K*5B'
+        vessel.NMEAInput(nmea_string)
+        #AWD = H + AWA - 360 
+        expected = 33
+        actual = vessel.AWD
+        self.assertEqual(expected, actual)
+
+
+    def test_vessel_correctly_calculates_AWD_when_AWA_is_negative(self):
+        vessel = Vessel()
+        #heading = 298.2
+        nmea_string = '$IIVHW,298.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        #AWA = -44.8
+        nmea_string = '$IIVWR,44.8,L,35.0,N,18.0,M,64.9,K*5B'
+        vessel.NMEAInput(nmea_string)
+        #AWD = H + AWA
+        expected =253.4 
+        actual = vessel.AWD
+        self.assertEqual(expected, actual)
+
+
+    def test_vessel_correctly_calculates_AWD_is_negative(self):
+        vessel = Vessel()
+        #heading = 38.2
+        nmea_string = '$IIVHW,38.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        #AWA = -44.8
+        nmea_string = '$IIVWR,44.8,L,35.0,N,18.0,M,64.9,K*5B'
+        vessel.NMEAInput(nmea_string)
+        #AWD = H + AWA
+        expected = 353.4
+        actual = vessel.AWD
+        self.assertEqual(expected, actual)
+        
+
+    def test_vessel_correctly_calculates_TWS_calc(self):
+        vessel = Vessel()
+        nmea_string = '$IIVHW,348.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVTG,309.90,T,310.90,M,9.9,N,18.3,K,A*06'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVWR,44.8,R,35.0,N,18.0,M,64.9,K*5B'
+        vessel.NMEAInput(nmea_string)
+        expected = 35.2
+        actual = vessel.TWS_calc
+        self.assertEqual(expected, actual)
+
+
+    def test_vessel_correctly_calculates_TWD_calc(self):
+        vessel = Vessel()
+        nmea_string = '$IIVHW,348.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVTG,309.90,T,310.90,M,9.9,N,18.3,K,A*06'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVWR,44.8,R,35.0,N,18.0,M,64.9,K*5B'
+        vessel.NMEAInput(nmea_string)
+        expected = 99.3
+        actual = vessel.TWA_calc
+        self.assertEqual(expected, actual)
+
+
+    def test_vessel_correctly_calculates_TWD_calc_2(self):
+        vessel = Vessel()
+        nmea_string = '$IIVHW,348.2,T,301.0,M,9.5,N,17.5,K*69'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVTG,10,T,310.90,M,9.9,N,18.3,K,A*06'
+        vessel.NMEAInput(nmea_string)
+        nmea_string = '$IIVWR,44.8,R,35.0,N,18.0,M,64.9,K*5B'
+        vessel.NMEAInput(nmea_string)
+        expected = 31.5
+        actual = vessel.TWA_calc
+        self.assertEqual(expected, actual)
+
+
+#TODO test sailing wind calculations
+#TODO test datetime combine
 #TODO test true wind speed calculations
+#TODO test apperant wind angle adjustment
+#TODO test average wind speed
+
 
 if __name__ == '__main__':
     unittest.main()

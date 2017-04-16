@@ -8,6 +8,15 @@ class Vessel:
     def __init__(self):
         self.first_log = None
         self.date = date.today()
+        self.time = datetime.now().time()
+        self.datetime = datetime.now()
+        self.boat_speed_indicator = None
+        self.boat_speed_knots = None
+        self.boat_speed_list = [] 
+        self.heading_true = 0
+        self.sog = 0
+        self.cog = 0
+
 
     def NMEAInput(self, nmea_string):
         self.LastNmeaInput = nmea_string
@@ -29,6 +38,7 @@ class Vessel:
                 self.longitude = lon
 
                 self.time = datetime.strptime(line.split(',')[5], '%H%M%S.%f')
+                self.datetime = datetime.combine(self.date, self.time.time())
 
             if head == '$GPRMC': #Set date from GPS
                 self.date = datetime.strptime(line.split(',')[9], '%d%m%y')
@@ -36,7 +46,34 @@ class Vessel:
             if head == '$IIVHW': #Heading & Speed Through Water
                 self.heading_true = float(line.split(',')[1])
                 self.heading_mag = float(line.split(',')[3])
-                self.boat_speed_knots = float(line.split(',')[5])
+                boat_speed = float(line.split(',')[5]) 
+                if boat_speed == self.boat_speed_knots:
+                    self.boat_speed_indicator = ''
+                elif boat_speed > self.boat_speed_knots:
+                    self.boat_speed_indicator = '+'
+                elif boat_speed < self.boat_speed_knots:
+                    self.boat_speed_indicator = '-'
+                else:
+                    self.boat_speed_knots = ''
+                self.boat_speed_knots = boat_speed
+
+                #keep boat_speed_list clean
+                for item in self.boat_speed_list:
+                    if (self.datetime - item[0]).total_seconds() > 10:
+                        self.boat_speed_list.pop(self.boat_speed_list.index(item))
+
+                #boat_speed_avg
+                boat_speed_sum = 0
+                boat_speed_count = 0
+                self.boat_speed_list.append((self.datetime, self.boat_speed_knots))
+                for item in self.boat_speed_list:
+                    if (self.datetime - item[0]).total_seconds() <= 10:
+                        boat_speed_count += 1
+                        boat_speed_sum += item[1]
+                if boat_speed_count > 0:
+                    self.boat_speed_avg = boat_speed_sum / boat_speed_count
+                else:
+                    self.boat_speed_avg = 0
 
             if head == '$IIVWT': #True Wind Angle & Speed
                 TWA = line.split(',')[1]                          
@@ -51,6 +88,12 @@ class Vessel:
                     AWA = '-' + AWA
                 self.AWA = float(AWA)
                 self.AWS = float(line.split(',')[3])
+                self.AWD = round(self.heading_true + self.AWA, 1)%360
+
+                #Calculate True Wind
+                self.TWS_calc = nav.TWS(self.sog, self.cog, self.AWS, self.AWD)                
+                self.TWD_calc = nav.TWD(self.sog, self.cog, self.AWS, self.AWD)                
+                self.TWA_calc = round((self.TWD_calc - self.cog)%360, 1)
 
             if head == '$IIVTG': #Track made good and speed over ground
                 self.cog = float(line.split(',')[1])

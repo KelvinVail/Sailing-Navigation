@@ -249,6 +249,16 @@ def latlon_to_decimal(latlon):
     return float(deg) + minutes
 
 
+def TWS(sog, cog, AWS, AWD):
+    u = sog * math.sin(math.radians(cog))-AWS*math.sin(math.radians(AWD))
+    v = sog * math.cos(math.radians(cog))-AWS*math.cos(math.radians(AWD))
+    return round(math.sqrt(u*u + v*v), 1)
+
+
+def TWD(sog, cog, AWS, AWD):
+    u = sog * math.sin(math.radians(cog))-AWS*math.sin(math.radians(AWD))
+    v = sog * math.cos(math.radians(cog))-AWS*math.cos(math.radians(AWD))
+    return round(math.degrees(math.atan(u/v)), 1)%360
 
 
 if __name__ == '__main__':
