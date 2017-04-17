@@ -258,7 +258,19 @@ def TWS(sog, cog, AWS, AWD):
 def TWD(sog, cog, AWS, AWD):
     u = sog * math.sin(math.radians(cog))-AWS*math.sin(math.radians(AWD))
     v = sog * math.cos(math.radians(cog))-AWS*math.cos(math.radians(AWD))
-    return round(math.degrees(math.atan(u/v)), 1)%360
+    return round(math.degrees(math.atan(u/v))%360, 1)
+
+
+def SWS(boat_speed, heading, AWS, AWD):
+    u = boat_speed * math.sin(math.radians(heading))-AWS*math.sin(math.radians(AWD))
+    v = boat_speed * math.cos(math.radians(heading))-AWS*math.cos(math.radians(AWD))
+    return round(math.sqrt(u*u + v*v), 1)
+
+
+def SWD(boat_speed, heading, AWS, AWD):
+    u = boat_speed * math.sin(math.radians(heading))-AWS*math.sin(math.radians(AWD))
+    v = boat_speed * math.cos(math.radians(heading))-AWS*math.cos(math.radians(AWD))
+    return round(math.degrees(math.atan(u/v))%360, 1)
 
 
 if __name__ == '__main__':

@@ -11,11 +11,12 @@ class Vessel:
         self.time = datetime.now().time()
         self.datetime = datetime.now()
         self.boat_speed_indicator = None
-        self.boat_speed_knots = None
+        self.boat_speed_knots = 0
         self.boat_speed_list = [] 
         self.heading_true = 0
         self.sog = 0
         self.cog = 0
+        self.power_status = 'Moored'
 
 
     def NMEAInput(self, nmea_string):
@@ -88,12 +89,23 @@ class Vessel:
                     AWA = '-' + AWA
                 self.AWA = float(AWA)
                 self.AWS = float(line.split(',')[3])
-                self.AWD = round(self.heading_true + self.AWA, 1)%360
+                self.AWD = round((self.heading_true + self.AWA)%360, 1)
 
                 #Calculate True Wind
                 self.TWS_calc = nav.TWS(self.sog, self.cog, self.AWS, self.AWD)                
                 self.TWD_calc = nav.TWD(self.sog, self.cog, self.AWS, self.AWD)                
                 self.TWA_calc = round((self.TWD_calc - self.cog)%360, 1)
+
+                #Calculate Sailing Wind
+                self.SWS = nav.SWS(self.boat_speed_knots, 
+                                   self.heading_true, 
+                                   self.AWS, 
+                                   self.AWD)                
+                self.SWD = nav.SWD(self.boat_speed_knots, 
+                                   self.heading_true, 
+                                   self.AWS, 
+                                   self.AWD)                
+                self.SWA = round((self.SWD - self.heading_true)%360, 1)
 
             if head == '$IIVTG': #Track made good and speed over ground
                 self.cog = float(line.split(',')[1])
@@ -128,6 +140,17 @@ class Vessel:
                 self.keel = float(line.split(',')[2])
                 self.depth_under_keel = round(float(line.split(',')[1]) +
                                               self.keel,2)
+
+            if head == '$XXPWR': #Custom Power Status
+                power_status = line.split(',')[1]
+                if power_status == 'M':
+                    self.power_status = 'Moored'
+                if power_status == 'E':
+                    self.power_status = 'Engine'
+                if power_status == 'S':
+                    self.power_status = 'Sailing'
+                if power_status == 'R':
+                    self.power_status = 'Racing'
 
 
 #TODO Add backup GPS

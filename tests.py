@@ -13,6 +13,8 @@ from modules.navigation import get_waypoint_details
 from modules.navigation import latlon_to_decimal
 from modules.navigation import TWS
 from modules.navigation import TWD
+from modules.navigation import SWS
+from modules.navigation import SWD
 from modules.vessel import Vessel
 
 #1nm = 1.851999km
@@ -131,6 +133,26 @@ class TestNavigation(unittest.TestCase):
         AWS = 35
         AWD = 33
         actual = TWS(sog, cog, AWS, AWD)
+        self.assertEqual(expected, actual)
+
+
+    def test_SWS_is_calculated_correctly(self):
+        expected = 35.2
+        boat_speed = 9.9
+        heading = 0
+        AWS = 35
+        AWD = 83.1
+        actual = SWS(boat_speed, heading, AWS, AWD)
+        self.assertEqual(expected, actual)
+
+
+    def test_SWD_is_calculated_correctly(self):
+        expected = 69.0
+        boat_speed = 4.54
+        heading = 34
+        AWS = 8
+        AWD = 50
+        actual = SWD(boat_speed, heading, AWS, AWD)
         self.assertEqual(expected, actual)
 
     def test_get_waypoint_details(self):
@@ -575,6 +597,42 @@ class TestVessel(unittest.TestCase):
         vessel.NMEAInput(nmea_string)
         expected = 31.5
         actual = vessel.TWA_calc
+        self.assertEqual(expected, actual)
+
+
+    def test_vessel_power_status_moored_is_set_correctly(self):
+        vessel = Vessel()
+        nmea_string = '$XXPWR,M'
+        vessel.NMEAInput(nmea_string)
+        expected = 'Moored'
+        actual = vessel.power_status
+        self.assertEqual(expected, actual)
+
+
+    def test_vessel_power_status_engine_is_set_correctly(self):
+        vessel = Vessel()
+        nmea_string = '$XXPWR,E'
+        vessel.NMEAInput(nmea_string)
+        expected = 'Engine'
+        actual = vessel.power_status
+        self.assertEqual(expected, actual)
+
+
+    def test_vessel_power_status_sailing_is_set_correctly(self):
+        vessel = Vessel()
+        nmea_string = '$XXPWR,S'
+        vessel.NMEAInput(nmea_string)
+        expected = 'Sailing'
+        actual = vessel.power_status
+        self.assertEqual(expected, actual)
+
+
+    def test_vessel_power_status_racing_is_set_correctly(self):
+        vessel = Vessel()
+        nmea_string = '$XXPWR,R'
+        vessel.NMEAInput(nmea_string)
+        expected = 'Racing'
+        actual = vessel.power_status
         self.assertEqual(expected, actual)
 
 
