@@ -11,6 +11,7 @@ from modules.navigation import dist_bearing_to_gate
 from modules.navigation import get_waypoint_list
 from modules.navigation import get_waypoint_details
 from modules.navigation import latlon_to_decimal
+from modules.navigation import AWD
 from modules.navigation import TWS
 from modules.navigation import TWD
 from modules.navigation import SWS
@@ -86,6 +87,34 @@ class TestNavigation(unittest.TestCase):
         self.assertAlmostEquals(0.062417, latlon_to_decimal('00003.74502'))
 
 
+    def test_AWD(self):
+        cog = 121.1
+        AWA = 101.5
+        expected = 222.6
+        actual = AWD(cog, AWA)
+        self.assertEqual(expected, actual)
+
+
+    def test_TWD(self):
+        sog = 8.3
+        cog = 121.1
+        AWS = 22.5
+        AWD = 222.6
+        expected = 241.2
+        actual = TWD(sog, cog, AWS, AWD)
+        self.assertEqual(expected, actual)
+
+
+    def test_TWD_2(self):
+        sog = 6.5
+        cog = 200
+        AWS = 5
+        AWD = 350
+        expected = 7.0
+        actual = TWD(sog, cog, AWS, AWD)
+        self.assertEqual(expected, actual)
+
+
     def test_TWS_is_calculated_correctly(self):
         expected = 35.2
         sog = 9.9
@@ -107,10 +136,10 @@ class TestNavigation(unittest.TestCase):
 
 
     def test_TWD_is_calculated_correctly_2(self):
-        expected = 321.7
+        expected = 105
         sog = 15
         cog = 0
-        AWS = 10
+        AWS = 15
         AWD = 30
         actual = TWD(sog, cog, AWS, AWD)
         self.assertEqual(expected, actual)

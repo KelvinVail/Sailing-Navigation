@@ -249,6 +249,10 @@ def latlon_to_decimal(latlon):
     return float(deg) + minutes
 
 
+def AWD(cog, AWA):
+    return(cog + AWA)%360
+
+
 def TWS(sog, cog, AWS, AWD):
     u = sog * math.sin(math.radians(cog))-AWS*math.sin(math.radians(AWD))
     v = sog * math.cos(math.radians(cog))-AWS*math.cos(math.radians(AWD))
@@ -256,9 +260,26 @@ def TWS(sog, cog, AWS, AWD):
 
 
 def TWD(sog, cog, AWS, AWD):
-    u = sog * math.sin(math.radians(cog))-AWS*math.sin(math.radians(AWD))
-    v = sog * math.cos(math.radians(cog))-AWS*math.cos(math.radians(AWD))
-    return round(math.degrees(math.atan(u/v))%360, 1)
+    if sog != 0:
+        if AWD < cog:
+            AWD += 360
+        AWA = AWD - cog
+        AWA = math.radians(AWA)
+        AWS = AWS / sog
+        tanAlpha = (math.sin(AWA) / (AWS - math.cos(AWA)))
+        alpha = math.atan(tanAlpha)
+        tdiff = math.degrees(AWA + alpha)
+        tspeed = math.sin(AWS) / math.sin(alpha)
+        TWD = round(tdiff+cog, 1)
+        if TWD > 360:
+            TWD -= 360
+    else:
+        TWD = AWD
+    return TWD
+#    u = (sog * math.sin(math.radians(cog)))-(AWS*math.sin(math.radians(AWD)))
+#    v = (sog * math.cos(math.radians(cog)))-(AWS*math.cos(math.radians(AWD)))
+#    d = math.degrees(math.atan(u/v))
+#    return round(d, 1)%360
 
 
 def SWS(boat_speed, heading, AWS, AWD):
@@ -268,9 +289,25 @@ def SWS(boat_speed, heading, AWS, AWD):
 
 
 def SWD(boat_speed, heading, AWS, AWD):
-    u = boat_speed * math.sin(math.radians(heading))-AWS*math.sin(math.radians(AWD))
-    v = boat_speed * math.cos(math.radians(heading))-AWS*math.cos(math.radians(AWD))
-    return round(math.degrees(math.atan(u/v))%360, 1)
+    if boat_speed != 0:
+        if AWD < heading:
+            AWD += 360
+        AWA = AWD - heading
+        AWA = math.radians(AWA)
+        AWS = AWS / boat_speed
+        tanAlpha = (math.sin(AWA) / (AWS - math.cos(AWA)))
+        alpha = math.atan(tanAlpha)
+        tdiff = math.degrees(AWA + alpha)
+        tspeed = math.sin(AWS) / math.sin(alpha)
+        TWD = round(tdiff+heading, 1)
+        if TWD > 360:
+            TWD -= 360
+    else:
+        TWD = AWD
+    return TWD
+#   u = boat_speed * math.sin(math.radians(heading))-AWS*math.sin(math.radians(AWD))
+#    v = boat_speed * math.cos(math.radians(heading))-AWS*math.cos(math.radians(AWD))
+#    return round(math.degrees(math.atan(u/v))%360, 1)
 
 
 if __name__ == '__main__':

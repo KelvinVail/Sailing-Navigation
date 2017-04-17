@@ -17,6 +17,32 @@ class Vessel:
         self.sog = 0
         self.cog = 0
         self.power_status = 'Moored'
+        self.AWA = None
+        self.AWD = None
+        self.AWS = None
+        self.baro = None
+        self.boat_speed_avg = None
+        self.depth = None
+        self.depth_under_keel = None
+        self.heading_mag = None
+        self.heel = None
+        self.keel = None
+        self.LastNmeaInput = None
+        self.latitude = None
+        self.log = None
+        self.log_distance = None
+        self.longitude = None
+        self.rudder = None
+        self.SWA = None
+        self.SWD = None
+        self.SWS = None
+        self.trim = None
+        self.TWA = None
+        self.TWS = None
+        self.TWA_calc = None
+        self.TWD_calc = None
+        self.TWS_calc = None
+        self.water_temp = None
 
 
     def NMEAInput(self, nmea_string):
@@ -38,43 +64,51 @@ class Vessel:
                     lon = float('-' + str(lon))
                 self.longitude = lon
 
-                self.time = datetime.strptime(line.split(',')[5], '%H%M%S.%f')
-                self.datetime = datetime.combine(self.date, self.time.time())
+                t = line.split(',')[5]
+                if int(t.split('.')[0][-2:]) <= 60: 
+                    self.time = datetime.strptime(line.split(',')[5], '%H%M%S.%f')
+                    self.datetime = datetime.combine(self.date, self.time.time())
 
             if head == '$GPRMC': #Set date from GPS
-                self.date = datetime.strptime(line.split(',')[9], '%d%m%y')
+                d = line.split(',')[9]
+                if len(d) > 0:
+                    self.date = datetime.strptime(d, '%d%m%y')
 
             if head == '$IIVHW': #Heading & Speed Through Water
-                self.heading_true = float(line.split(',')[1])
-                self.heading_mag = float(line.split(',')[3])
-                boat_speed = float(line.split(',')[5]) 
-                if boat_speed == self.boat_speed_knots:
-                    self.boat_speed_indicator = ''
-                elif boat_speed > self.boat_speed_knots:
-                    self.boat_speed_indicator = '+'
-                elif boat_speed < self.boat_speed_knots:
-                    self.boat_speed_indicator = '-'
-                else:
-                    self.boat_speed_knots = ''
-                self.boat_speed_knots = boat_speed
+                h = line.split(',')[1]
+                if len(h) > 0:
+                    self.heading_true = float(line.split(',')[1])
+                    self.heading_mag = float(line.split(',')[3])
+                    b = line.split(',')[5]
+                    if len(b) > 0:
+                        boat_speed = float(b) 
+                        if boat_speed == self.boat_speed_knots:
+                            self.boat_speed_indicator = ''
+                        elif boat_speed > self.boat_speed_knots:
+                            self.boat_speed_indicator = '+'
+                        elif boat_speed < self.boat_speed_knots:
+                            self.boat_speed_indicator = '-'
+                        else:
+                            self.boat_speed_knots = ''
+                        self.boat_speed_knots = boat_speed
 
-                #keep boat_speed_list clean
-                for item in self.boat_speed_list:
-                    if (self.datetime - item[0]).total_seconds() > 10:
-                        self.boat_speed_list.pop(self.boat_speed_list.index(item))
+                        #keep boat_speed_list clean
+                        for item in self.boat_speed_list:
+                            if (self.datetime - item[0]).total_seconds() > 10:
+                                self.boat_speed_list.pop(self.boat_speed_list.index(item))
 
-                #boat_speed_avg
-                boat_speed_sum = 0
-                boat_speed_count = 0
-                self.boat_speed_list.append((self.datetime, self.boat_speed_knots))
-                for item in self.boat_speed_list:
-                    if (self.datetime - item[0]).total_seconds() <= 10:
-                        boat_speed_count += 1
-                        boat_speed_sum += item[1]
-                if boat_speed_count > 0:
-                    self.boat_speed_avg = boat_speed_sum / boat_speed_count
-                else:
-                    self.boat_speed_avg = 0
+                        #boat_speed_avg
+                        boat_speed_sum = 0
+                        boat_speed_count = 0
+                        self.boat_speed_list.append((self.datetime, self.boat_speed_knots))
+                        for item in self.boat_speed_list:
+                            if (self.datetime - item[0]).total_seconds() <= 10:
+                                boat_speed_count += 1
+                                boat_speed_sum += item[1]
+                        if boat_speed_count > 0:
+                            self.boat_speed_avg = boat_speed_sum / boat_speed_count
+                        else:
+                            self.boat_speed_avg = 0
 
             if head == '$IIVWT': #True Wind Angle & Speed
                 TWA = line.split(',')[1]                          
