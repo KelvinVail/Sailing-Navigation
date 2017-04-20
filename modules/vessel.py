@@ -6,6 +6,7 @@ import navigation as nav
 class Vessel:
 
     def __init__(self):
+        self.AWA_adj = 0
         self.first_log = None
         self.date = date.today()
         self.time = datetime.now().time()
@@ -122,8 +123,11 @@ class Vessel:
                 if line.split(',')[2] == 'L':
                     AWA = '-' + AWA
                 self.AWA = float(AWA)
+                if self.AWA < 0:
+                    self.AWA + self.AWA_adj
                 self.AWS = float(line.split(',')[3])
-                self.AWD = round((self.heading_true + self.AWA)%360, 1)
+                self.AWD = nav.AWD(self.heading_true, self.AWA)
+                #round((self.heading_true + self.AWA)%360, 1)
 
                 #Calculate True Wind
                 self.TWS_calc = nav.TWS(self.sog, self.cog, self.AWS, self.AWD)                

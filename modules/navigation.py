@@ -250,7 +250,7 @@ def latlon_to_decimal(latlon):
 
 
 def AWD(cog, AWA):
-    return(cog + AWA)%360
+    return round((cog + AWA)%360, 1)
 
 
 def TWS(sog, cog, AWS, AWD):
@@ -260,10 +260,10 @@ def TWS(sog, cog, AWS, AWD):
 
 
 def TWD(sog, cog, AWS, AWD):
-    if sog != 0:
+    if sog != 0 and cog != AWD:
         if AWD < cog:
             AWD += 360
-        AWA = AWD - cog
+        AWA = AWD - cog #TODO this needs to be heading and not cog 
         AWA = math.radians(AWA)
         AWS = AWS / sog
         tanAlpha = (math.sin(AWA) / (AWS - math.cos(AWA)))
@@ -289,7 +289,8 @@ def SWS(boat_speed, heading, AWS, AWD):
 
 
 def SWD(boat_speed, heading, AWS, AWD):
-    if boat_speed != 0:
+#    print(boat_speed, heading, AWS, AWD)
+    if boat_speed != 0 and heading != AWD:
         if AWD < heading:
             AWD += 360
         AWA = AWD - heading
@@ -304,6 +305,7 @@ def SWD(boat_speed, heading, AWS, AWD):
             TWD -= 360
     else:
         TWD = AWD
+#    print(TWD)
     return TWD
 #   u = boat_speed * math.sin(math.radians(heading))-AWS*math.sin(math.radians(AWD))
 #    v = boat_speed * math.cos(math.radians(heading))-AWS*math.cos(math.radians(AWD))
