@@ -17,6 +17,7 @@ from modules.navigation import TWD
 from modules.navigation import SWS
 from modules.navigation import SWD
 from modules.vessel import Vessel
+from modules.course import Course
 
 #1nm = 1.851999km
 
@@ -664,12 +665,66 @@ class TestVessel(unittest.TestCase):
         actual = vessel.power_status
         self.assertEqual(expected, actual)
 
-
 #TODO test sailing wind calculations
 #TODO test datetime combine
 #TODO test true wind speed calculations
 #TODO test apperant wind angle adjustment
 #TODO test average wind speed
+
+
+class TestCourse(unittest.TestCase):
+
+
+    def test_that_a_waypoint_can_be_created(self):
+        course = Course('new')
+        expected = {1:{'name':'unknown',
+                       'latitude':0.00,
+                       'longitude':0.00,
+                       'leave_to':'anywhere',
+                       'passed':False,
+                       'next':False}}
+        course.add_waypoint(1)
+        actual = course.waypoints
+        self.assertDictEqual(expected, actual)
+
+
+    def test_that_waypoint_details_can_be_updated(self):
+        course = Course('new')
+        expected = {1:{'name':'Waypoint1',
+                       'latitude':0.00,
+                       'longitude':0.00,
+                       'leave_to':'anywhere',
+                       'passed':False,
+                       'next':False}}
+        course.add_waypoint(1, 'name', 'Waypoint1')
+        actual = course.waypoints
+        self.assertDictEqual(expected, actual)
+
+    
+    def test_that_a_ValueError_is_rasied_if_an_invalid_key_is_passed_to_add_waypoints(self):
+        course = Course('new')
+        self.assertRaises(ValueError, 
+                          course.add_waypoint, 1, 'invalid key', 20)
+
+
+    def test_that_waypoints_gets_pickled(self):
+        course = Course('new')
+        expected = {2:{'name':'Pickle',
+                       'latitude':0.00,
+                       'longitude':0.00,
+                       'leave_to':'anywhere',
+                       'passed':False,
+                       'next':False}}
+        course.add_waypoint(2, 'name', 'Pickle')
+        course.pickle_waypoints()
+        course = None
+        course = Course()
+        actual = course.waypoints
+        self.assertDictEqual(expected, actual)
+
+#TODO figure out how to fake pickle files
+        
+
 
 
 if __name__ == '__main__':
