@@ -16,6 +16,8 @@ class Course:
             self.course_name = 'defualt_course'
             self.waypoints = {}
 
+        self.startline = {}
+
 
     def add_waypoint(self, order, key=None, value=None):
         if order not in self.waypoints:
@@ -62,3 +64,22 @@ class Course:
     def pickle_waypoints(self):
         with open(self.course_name + '.pickle', 'w') as f:
             pickle.dump(self.waypoints, f)
+
+
+    def add_startline(self, pin_1, pin_2, start_from):
+        if type(pin_1) != float:
+            raise ValueError('"' + str(type(pin_1)) + '" is not a valid '
+                             'datatype for pin_1 of startline')
+        elif type(pin_2) != float:
+            raise ValueError('"' + str(type(pin_2)) + '" is not a valid '
+                             'datatype for pin_2 of startline')
+        elif type(start_from) != str:
+            raise ValueError('"' + str(type(pin_2)) + '" is not a valid '
+                             'datatype for start_from of startline')
+        elif start_from not in ['North', 'South', 'East', 'West']:
+            raise ValueError('"' + start_from + '" is not a valid '
+                             'value for start_from of startline')
+        else:
+            self.startline = {'pin_1':pin_1,
+                              'pin_2':pin_2,
+                              'start_from':start_from}

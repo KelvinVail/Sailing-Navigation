@@ -775,8 +775,39 @@ class TestCourse(unittest.TestCase):
         actual = course.waypoints
         self.assertDictEqual(expected, actual)
 
-#TODO figure out how to fake pickle files
         
+    def test_that_a_startline_can_be_added_to_course(self):
+        course = Course()
+        expected = {'pin_1':0.00,
+                    'pin_2':0.00,
+                    'start_from':'West'}
+        course.add_startline(0.00, 0.00, 'West')
+        actual = course.startline
+        self.assertDictEqual(expected, actual)
+
+
+    def test_ValueError_if_an_invalid_pin_1_datatype_is_passed_to_add_startline(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_startline, 'x', 0.00, 'West')
+
+
+    def test_ValueError_if_an_invalid_pin_2_datatype_is_passed_to_add_startline(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_startline, 0.00, 'x', 'West')
+
+
+    def test_ValueError_if_an_invalid_start_from_datatype_is_passed_to_add_startline(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_startline, 0.00, 0.00, 0.00)
+
+
+    def test_ValueError_if_an_invalid_start_from_value_is_passed_to_add_startline(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_startline, 0.00, 0.00, 'x')
 
 
 
