@@ -1,6 +1,7 @@
 from datetime import date
 from datetime import datetime
 import unittest
+import os
 from modules.navigation import haversine_distance
 from modules.navigation import estimated_position
 from modules.navigation import intersection
@@ -675,8 +676,18 @@ class TestVessel(unittest.TestCase):
 class TestCourse(unittest.TestCase):
 
 
+    def setUp(self):
+        self.filename = 'test'
+
+
+    def tearDown(self):
+        try:
+            os.remove(self.filename + '.pickle')
+        except:
+            pass
+
     def test_that_a_waypoint_can_be_created(self):
-        course = Course('new')
+        course = Course()
         expected = {1:{'name':'unknown',
                        'latitude':0.00,
                        'longitude':0.00,
@@ -689,7 +700,7 @@ class TestCourse(unittest.TestCase):
 
 
     def test_that_waypoint_details_can_be_updated(self):
-        course = Course('new')
+        course = Course()
         expected = {1:{'name':'Waypoint1',
                        'latitude':0.00,
                        'longitude':0.00,
@@ -702,13 +713,55 @@ class TestCourse(unittest.TestCase):
 
     
     def test_that_a_ValueError_is_rasied_if_an_invalid_key_is_passed_to_add_waypoints(self):
-        course = Course('new')
+        course = Course()
         self.assertRaises(ValueError, 
                           course.add_waypoint, 1, 'invalid key', 20)
 
 
+    def test_ValueError_if_an_invalid_name_datatype_is_passed_to_add_waypoints(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_waypoint, 1, 'name', 20)
+
+
+    def test_ValueError_if_an_invalid_latitude_datatype_is_passed_to_add_waypoints(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_waypoint, 1, 'latitude', 'x')
+
+
+    def test_ValueError_if_an_invalid_longitude_datatype_is_passed_to_add_waypoints(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_waypoint, 1, 'longitude', 'x')
+
+
+    def test_ValueError_if_an_invalid_leave_to_datatype_is_passed_to_add_waypoints(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_waypoint, 1, 'leave_to', 20)
+
+
+    def test_ValueError_if_an_invalid_passed_datatype_is_passed_to_add_waypoints(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_waypoint, 1, 'passed', 'x')
+
+
+    def test_ValueError_if_an_invalid_next_datatype_is_passed_to_add_waypoints(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_waypoint, 1, 'next', 'x')
+
+
+    def test_ValueError_if_an_invalid_leave_to_value_is_passed_to_add_waypoints(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_waypoint, 1, 'leave_to', 'x')
+
+
     def test_that_waypoints_gets_pickled(self):
-        course = Course('new')
+        course = Course(self.filename)
         expected = {2:{'name':'Pickle',
                        'latitude':0.00,
                        'longitude':0.00,
@@ -718,7 +771,7 @@ class TestCourse(unittest.TestCase):
         course.add_waypoint(2, 'name', 'Pickle')
         course.pickle_waypoints()
         course = None
-        course = Course()
+        course = Course(self.filename)
         actual = course.waypoints
         self.assertDictEqual(expected, actual)
 
