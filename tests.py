@@ -19,6 +19,7 @@ from modules.navigation import SWS
 from modules.navigation import SWD
 from modules.vessel import Vessel
 from modules.course import Course
+from modules.polar import Polar
 
 #1nm = 1.851999km
 
@@ -826,6 +827,31 @@ class TestCourse(unittest.TestCase):
         course = Course(self.filename)
         actual = course.startline
         self.assertDictEqual(expected, actual)
+
+
+class TestPolar(unittest.TestCase):
+
+
+    def test_that_data_can_be_passed_to_polar(self):
+        polar = Polar()
+        polar.add_data('Racing', 90, 15.2, 7.2)
+
+
+    def test_that_data_can_be_retrurned_from_polar(self):
+        polar = Polar()
+        polar.add_data('Racing', 90, 15.2, 7.2)
+        expected = 7.2
+        actual = polar.get_target('Racing', 90, 15.2)
+        self.assertEqual(expected, actual)
+
+
+    def test_that_average_data_is_retrurned_from_polar(self):
+        polar = Polar()
+        polar.add_data('Racing', 90, 15.2, 6.0)
+        polar.add_data('Racing', 90, 15.2, 8.0)
+        expected = 7.0
+        actual = polar.get_target('Racing', 90, 15.2)
+        self.assertEqual(expected, actual)
 
 
 
