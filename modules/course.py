@@ -8,15 +8,20 @@ class Course:
         if course_name != None:
             self.course_name = course_name
             try:
-                with open(self.course_name + '.pickle', 'r') as f:
+                with open(self.course_name + '_waypoint.pickle', 'r') as f:
                     self.waypoints = pickle.load(f)
             except:
                 self.waypoints = {}
+
+            try:
+                with open(self.course_name + '_startline.pickle', 'r') as f:
+                    self.startline = pickle.load(f)
+            except:
+                self.startline = {}
         else:
             self.course_name = 'defualt_course'
             self.waypoints = {}
-
-        self.startline = {}
+            self.startline = {}
 
 
     def add_waypoint(self, order, key=None, value=None):
@@ -62,7 +67,7 @@ class Course:
 
 
     def pickle_waypoints(self):
-        with open(self.course_name + '.pickle', 'w') as f:
+        with open(self.course_name + '_waypoint.pickle', 'w') as f:
             pickle.dump(self.waypoints, f)
 
 
@@ -83,3 +88,8 @@ class Course:
             self.startline = {'pin_1':pin_1,
                               'pin_2':pin_2,
                               'start_from':start_from}
+
+
+    def pickle_startline(self):
+        with open(self.course_name + '_startline.pickle', 'w') as f:
+            pickle.dump(self.startline, f)

@@ -682,7 +682,12 @@ class TestCourse(unittest.TestCase):
 
     def tearDown(self):
         try:
-            os.remove(self.filename + '.pickle')
+            os.remove(self.filename + '_waypoint.pickle')
+        except:
+            pass
+
+        try:
+            os.remove(self.filename + '_startline.pickle')
         except:
             pass
 
@@ -808,6 +813,19 @@ class TestCourse(unittest.TestCase):
         course = Course()
         self.assertRaises(ValueError, 
                           course.add_startline, 0.00, 0.00, 'x')
+
+
+    def test_that_startline_gets_pickled(self):
+        course = Course(self.filename)
+        expected = {'pin_1':-1.23,
+                    'pin_2':9.87,
+                    'start_from':'North'}
+        course.add_startline(-1.23, 9.87, 'North')
+        course.pickle_startline()
+        course = None
+        course = Course(self.filename)
+        actual = course.startline
+        self.assertDictEqual(expected, actual)
 
 
 
