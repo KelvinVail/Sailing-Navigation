@@ -3,25 +3,34 @@ import numpy as np
 
 
 FILE_PATH = 'raw_polar.csv'
+SWS = 0
+boat_speed = None
 
-df = pd.DataFrame.from_csv(FILE_PATH)
+with open(FILE_PATH, 'rw') as f:
+    with open('prep_polar.csv', 'w') as w:
+        #w.write('SWA,SWS,boat_speed')
+        for line in f:
+            SWA, SWS, boat_speed = line.split(',')
+            if SWA != 'SWA':
+                if len(boat_speed) > 1:
+                    last_boat_speed = boat_speed
+                if int(SWA) == 180:
+                    boat_speed = last_boat_speed
+            w.write(SWA + ',' + SWS + ',' +  boat_speed)
+
+df = pd.DataFrame.from_csv('prep_polar.csv')
 df.reset_index(inplace=True)
 df.set_index(['SWS', 'SWA'], inplace=True)
 df = df.interpolate()
 df = df.replace(0, np.nan)
 
 df.reset_index(inplace=True)
-df.loc[df['SWS'] == 1, 'boat_speed'] = 0
-df = df.sort(['SWA', 'SWS'])
-df.set_index(['SWA', 'SWS'], inplace=True)
-df = df.interpolate()
+df.loc[df['SWS'] == 0, 'boat_speed'] = 0
+df.loc[df['SWA'] == 0, 'boat_speed'] = 0
 
-#df.reset_index(inplace=True)
-#df.loc[df['SWS'] > 20, 'boat_speed'] = np.nan
-#df = df.sort(['SWS', 'SWA'])
-#df.set_index(['SWS', 'SWA'], inplace=True)
-#df = df.interpolate()
+df.set_index(['SWS', 'SWA'], inplace=True)
 
 df = df.unstack(level=1)
-print(df.head())
+df = df.interpolate()
+df = df.stack()
 df.to_csv('inter_polar.csv')
