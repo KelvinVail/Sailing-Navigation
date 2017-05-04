@@ -1,6 +1,7 @@
 from datetime import date
 from datetime import datetime
 import unittest
+import io
 import os
 from modules.navigation import haversine_distance
 from modules.navigation import estimated_position
@@ -20,6 +21,7 @@ from modules.navigation import SWD
 from modules.vessel import Vessel
 from modules.course import Course
 from modules.polar import Polar
+from modules.polar import FileAccessWrapper
 
 #1nm = 1.851999km
 
@@ -832,27 +834,36 @@ class TestCourse(unittest.TestCase):
 class TestPolar(unittest.TestCase):
 
 
-    def test_that_data_can_be_passed_to_polar(self):
-        polar = Polar()
-        polar.add_data('Racing', 90, 15.2, 7.2)
+    def setUp(self):
+        self.polar_file = FakePolarFile()
+        #self.polar_file = \
+        #FileAccessWrapper('modules/process/inter_polar.csv')
+        self.polar = Polar(self.polar_file)
 
-
-    def test_that_data_can_be_retrurned_from_polar(self):
-        polar = Polar()
-        polar.add_data('Racing', 90, 15.2, 7.2)
-        expected = 7.2
-        actual = polar.get_target('Racing', 90, 15.2)
+    def test_that_data_is_retrurned_from_a_polar_file(self):
+        SWS = 10
+        SWA = 90
+        expected = SWS * SWA
+        actual = self.polar.get_target(SWS, SWA)
         self.assertEqual(expected, actual)
 
 
-    def test_that_average_data_is_retrurned_from_polar(self):
-        polar = Polar()
-        polar.add_data('Racing', 90, 15.2, 6.0)
-        polar.add_data('Racing', 90, 15.2, 8.0)
-        expected = 7.0
-        actual = polar.get_target('Racing', 90, 15.2)
-        self.assertEqual(expected, actual)
+class FakePolarFile:
+    def __init__(self):
+        text = 'SWS,SWA,boat_speed\n'
+        for SWS in range(0,31):
+            for SWA in range(0, 181):
+                line = str(SWS) + ','
+                line += str(SWA) + ','
+                line += str(SWS*SWA) + '\n'
+                text += line.encode('UTF-8')
 
+
+        self.text = text.decode('UTF-8') 
+
+
+    def open(self):
+        return io.StringIO(self.text)
 
 
 if __name__ == '__main__':
