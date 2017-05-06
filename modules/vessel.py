@@ -1,11 +1,36 @@
 from datetime import date
 from datetime import datetime
 import navigation as nav
+from polar import Polar
+from polar import FileAccessWrapper
+
+
+class FileAccessWrapper:
+
+
+    def __init__(self, filename):
+        self.filename = filename
+
+
+    def open(self):
+        return open(self.filename, 'r')
 
 
 class Vessel:
 
-    def __init__(self):
+    def __init__(self, file_access=None):
+
+        self.polar_file = None
+        if file_access != None:
+            self.polar_file = file_access.open()
+            line_offset = []
+            offset = 0
+            for line in self.polar_file:
+                line_offset.append(offset)
+                offset += len(line)
+            self.line_offset = line_offset
+            self.polar_file.seek(0)
+
         self.AWA_adj = 0
         self.first_log = None
         self.date = date.today()
@@ -44,6 +69,17 @@ class Vessel:
         self.TWD_calc = None
         self.TWS_calc = None
         self.water_temp = None
+        self.target_boat_speed = None
+
+
+    def get_target(self, SWS, SWA):
+        line_number = (int(round(SWS, 0)) * 181) + int(round(SWA, 0)) + 1
+        if line_number <= len(self.line_offset):
+            self.polar_file.seek(self.line_offset[line_number])
+            l_SWS, l_SWA, target_boat_speed = self.polar_file.readline().split(',')
+            self.polar_file.seek(0)
+            self.target_boat_speed = round(float(target_boat_speed), 2)
+            return round(float(target_boat_speed), 2)
 
 
     def NMEAInput(self, nmea_string):
@@ -145,6 +181,9 @@ class Vessel:
                                    self.AWD)                
                 self.SWA = round((self.SWD - self.heading_true)%360, 1)
 
+                if self.polar_file != None:
+                    self.get_target(self.SWS, self.SWA)
+
             if head == '$IIVTG': #Track made good and speed over ground
                 self.cog = float(line.split(',')[1])
                 self.sog = float(line.split(',')[5])
@@ -189,6 +228,7 @@ class Vessel:
                     self.power_status = 'Sailing'
                 if power_status == 'R':
                     self.power_status = 'Racing'
+
 
 
 #TODO Add backup GPS

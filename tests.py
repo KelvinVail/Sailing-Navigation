@@ -669,6 +669,35 @@ class TestVessel(unittest.TestCase):
         actual = vessel.power_status
         self.assertEqual(expected, actual)
 
+
+    def test_that_polar_data_is_retrurned_from_vessel(self):
+        vessel = Vessel(FakePolarFile())
+        SWS = 10
+        SWA = 90
+        expected = SWS * SWA
+        actual = vessel.get_target(SWS, SWA)
+        self.assertEqual(expected, actual)
+
+
+    def test_that_polar_data_is_updated_when(self):
+        vessel = Vessel(FakePolarFile())
+        SWS = 10
+        SWA = 90
+        expected = SWS * SWA
+        actual = vessel.get_target(SWS, SWA)
+        self.assertEqual(expected, actual)
+
+
+    def test_that_target_boat_speed_is_set_correctly_in_NMEAInput(self):
+        vessel = Vessel(FakePolarFile())
+        nmea_string = '$IIVWR,44.8,R,10.0,N,18.0,M,64.9,K*5B'
+        expected = 10 * 45
+        vessel.NMEAInput(nmea_string)
+        actual = vessel.target_boat_speed
+        self.assertEqual(expected, actual)
+
+
+
 #TODO test sailing wind calculations
 #TODO test datetime combine
 #TODO test true wind speed calculations
@@ -840,12 +869,15 @@ class TestPolar(unittest.TestCase):
         #FileAccessWrapper('modules/process/inter_polar.csv')
         self.polar = Polar(self.polar_file)
 
+
     def test_that_data_is_retrurned_from_a_polar_file(self):
         SWS = 10
         SWA = 90
         expected = SWS * SWA
         actual = self.polar.get_target(SWS, SWA)
         self.assertEqual(expected, actual)
+
+
 
 
 class FakePolarFile:
@@ -857,13 +889,14 @@ class FakePolarFile:
                 line += str(SWA) + ','
                 line += str(SWS*SWA) + '\n'
                 text += line.encode('UTF-8')
-
-
         self.text = text.decode('UTF-8') 
 
 
     def open(self):
         return io.StringIO(self.text)
+
+
+#TODO calculate optimal heading based on VMG & speed target
 
 
 if __name__ == '__main__':
