@@ -6,7 +6,7 @@ import pygrib
 lat = 50.784
 lon = -1.297
 grib_path = \
-'/home/kelvin/Documents/Navigation/Gribs/Tide/AROME_0.01_SP1_03H_201705061200.grib2'
+'/home/kelvin/Documents/Navigation/Gribs/Tide/AROME_0.01_SP1_00H_201705061200.grib2'
 grbs = pygrib.open(grib_path)
 #for grb in grbs:
 #    print(grb.parameterName)
@@ -40,5 +40,5 @@ u = u - (u*2)
 
 h = math.sqrt(v**2 + u**2) * 1.94384
 print(h)
-d = math.degrees(math.atan2(u, v))
+d = math.degrees(math.atan2(u, v))%360
 print(d)
