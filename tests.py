@@ -22,6 +22,7 @@ from modules.vessel import Vessel
 from modules.course import Course
 from modules.polar import Polar
 from modules.polar import FileAccessWrapper
+from modules.display import print_course_details
 
 #1nm = 1.851999km
 
@@ -815,24 +816,96 @@ class TestCourse(unittest.TestCase):
         
     def test_that_a_startline_can_be_added_to_course(self):
         course = Course()
-        expected = {'pin_1':0.00,
-                    'pin_2':0.00,
+        expected = {'lat_pin_1':0.00,
+                    'lon_pin_1':0.00,
+                    'lat_pin_2':0.00,
+                    'lon_pin_2':0.00,
                     'start_from':'West'}
-        course.add_startline(0.00, 0.00, 'West')
+        course.add_startline(0.00, 0.00, 0.00, 0.00, 'West')
         actual = course.startline
         self.assertDictEqual(expected, actual)
 
 
-    def test_ValueError_if_an_invalid_pin_1_datatype_is_passed_to_add_startline(self):
+    def test_ValueError_if_an_invalid_lat_pin_1_datatype_is_passed_to_add_startline(self):
         course = Course()
         self.assertRaises(ValueError, 
-                          course.add_startline, 'x', 0.00, 'West')
+                          course.add_startline, 'x', 0.00, 0.00, 0.00, 'West')
 
 
-    def test_ValueError_if_an_invalid_pin_2_datatype_is_passed_to_add_startline(self):
+    def test_ValueError_if_an_invalid_lon_pin_1_datatype_is_passed_to_add_startline(self):
         course = Course()
         self.assertRaises(ValueError, 
-                          course.add_startline, 0.00, 'x', 'West')
+                          course.add_startline, 0.00, 'x', 0.00, 0.00, 'West')
+
+
+    def test_ValueError_if_an_invalid_lat_pin_2_datatype_is_passed_to_add_startline(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_startline, 0.00, 0.00, 'x', 0.00, 'West')
+
+
+    def test_ValueError_if_an_invalid_lon_pin_2_datatype_is_passed_to_add_startline(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_startline, 0.00, 0.00, 0.00, 'x', 'West')
+
+
+    def test_ValueError_if_an_invalid_start_from_datatype_is_passed_to_add_startline(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_startline, 0.00, 0.00, 0.00, 0.00, 0.00)
+
+
+    def test_ValueError_if_an_invalid_start_from_value_is_passed_to_add_startline(self):
+        course = Course()
+        self.assertRaises(ValueError, 
+                          course.add_startline, 0.00, 0.00, 0.00, 0.00, 'x')
+
+
+    def test_that_startline_gets_pickled(self):
+        course = Course(self.filename)
+        expected = {'lat_pin_1':-1.23,
+                    'lon_pin_1':9.87,
+                    'lat_pin_2':9.87,
+                    'lon_pin_2':9.87,
+                    'start_from':'North'}
+        course.add_startline(-1.23, 9.87, 9.87, 9.87, 'North')
+        course.pickle_startline()
+        course = None
+        course = Course(self.filename)
+        actual = course.startline
+        self.assertDictEqual(expected, actual)
+
+
+class TestPolar(unittest.TestCase):
+
+
+    def setUp(self):
+        self.polar_file = FakePolarFile()
+        #self.polar_file = \
+        #FileAccessWrapper('modules/process/inter_polar.csv')
+        self.polar = Polar(self.polar_file)
+
+
+    def test_that_data_is_retrurned_from_a_polar_file(self):
+        SWS = 10
+        SWA = 90
+        expected = SWS * SWA
+        actual = self.polar.get_target(SWS, SWA)
+        self.assertEqual(expected, actual)
+
+
+class TestDisplay(unittest.TestCase):
+
+
+    def setUp(self):
+        pass
+
+
+
+class FakePolarFile:
+
+
 
 
     def test_ValueError_if_an_invalid_start_from_datatype_is_passed_to_add_startline(self):
@@ -878,9 +951,20 @@ class TestPolar(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
+class TestDisplay(unittest.TestCase):
+
+
+    def setUp(self):
+        self.course = FakeCourse().course
+
+
+    def test_print_course_details(self):
+        pass
 
 
 class FakePolarFile:
+
+
     def __init__(self):
         text = 'SWS,SWA,boat_speed\n'
         for SWS in range(0,31):
@@ -894,6 +978,60 @@ class FakePolarFile:
 
     def open(self):
         return io.StringIO(self.text)
+
+
+class FakeCourse:
+
+
+    def __init__(self):
+        self.filename = 'test_course'
+        self.course = Course(self.filename)
+        #Cowes RYS Startline
+        self.course.add_startline(50.767, -1.301, 50.787, -1.309, 'West')
+
+        self.course.add_waypoint(1, 'name', 'Snowden Buoy')
+        self.course.add_waypoint(1, 'latitude', 50.77)
+        self.course.add_waypoint(1, 'longitude', -1.2958)
+
+        self.course.add_waypoint(2, 'name', 'No Mans Land Fort')
+        self.course.add_waypoint(2, 'latitude', 50.7406)
+        self.course.add_waypoint(2, 'longitude', -1.0933)
+
+        self.course.add_waypoint(3, 'name', 'Owers Buoy')
+        self.course.add_waypoint(3, 'latitude', 50.6432)
+        self.course.add_waypoint(3, 'longitude', -0.6848)
+
+        self.course.add_waypoint(4, 'name', 'St Catherines Point')
+        self.course.add_waypoint(4, 'latitude', 50.5756)
+        self.course.add_waypoint(4, 'longitude', -1.2978)
+
+        self.course.add_waypoint(5, 'name', 'ODAS Buoy (Southern)')
+        self.course.add_waypoint(5, 'latitude', 50.4335)
+        self.course.add_waypoint(5, 'longitude', -1.81)
+
+        self.course.add_waypoint(6, 'name', 'Poole Bar Buoy (No. 1)')
+        self.course.add_waypoint(6, 'latitude', 50.6548)
+        self.course.add_waypoint(6, 'longitude', -1.919)
+
+        self.course.add_waypoint(7, 'name', 'SW Shingles Buoy')
+        self.course.add_waypoint(7, 'latitude', 50.6548)
+        self.course.add_waypoint(7, 'longitude', -1.6253)
+
+        self.course.add_waypoint(8, 'name', 'ODAS Buoy (Northern)')
+        self.course.add_waypoint(8, 'latitude', 50.5532)
+        self.course.add_waypoint(8, 'longitude', -1.7195)
+
+        self.course.add_waypoint(9, 'name', 'Poole Bar Buoy (No. 1)')
+        self.course.add_waypoint(9, 'latitude', 50.6548)
+        self.course.add_waypoint(9, 'longitude', -1.919)
+
+        self.course.add_waypoint(10, 'name', 'North Head Buoy')
+        self.course.add_waypoint(10, 'latitude', 50.7115)
+        self.course.add_waypoint(10, 'longitude', -1.592)
+
+        self.course.add_waypoint(11, 'name', 'FINISH - Lymington Bank Buoy')
+        self.course.add_waypoint(11, 'latitude', 50.7183)
+        self.course.add_waypoint(11, 'longitude', -1.5142)
 
 
 #TODO calculate optimal heading based on VMG & speed target

@@ -1,7 +1,11 @@
 import sys
 import os
+import modules.navigation as nav
+from race_details.RORC_De_Guingand_Bowl_Race_2017.course_details \
+        import CourseDetails
 
 
+course = CourseDetails().course
 #rows, columns = os.popen('stty size', 'r').read().split()
 
 
@@ -11,17 +15,60 @@ def clear_terminal():
 
 def print_there(x, y, text):
     sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (x, y, text))
-    sys.stdout.flush()
+    #sys.stdout.flush()
 
 
-def get_attr_len(attr):
-    pass
+def print_course_details(anchor, course):
+    
+    clear_terminal()
+    
+    waypoint_count = len(course.waypoints)
+    #Get column widths
+    name_width = 0
+    for key, value in course.waypoints.items():
+        if len(value['name']) > name_width:
+            name_width = len(value['name'])
 
-def print_vessel(vessel):
-    for a in dir(vessel):
-        if not a.startswith('__') and not a.startswith('Last') and not \
-        a.startswith('boat_speed_list') and not callable(getattr(vessel, a)):
-            pass
+    table_widths = "{:>"+str(len(str(waypoint_count))+1)+"}" \
+            " {:<"+str(name_width+1)+"}" \
+            " {:>7}" \
+            " {:>9}"
+    
+    #Header
+    header = table_widths.format(' ', 'name', 'bearing', 'distance')
+    print_there(anchor[0], anchor[1], header)
+
+    #Start
+    row_text = table_widths.format(0, 'START', '', '')
+    print_there(anchor[0]+1, anchor[1], row_text)
+
+    row_count = 1
+    total_dist = 0
+    for key, value in course.waypoints.items():
+        if row_count == 1: #Get bearing & distance from startline
+            wp_from = course.startline['lat_pin_1'], \
+                course.startline['lon_pin_1']
+        else: #From last waypoint
+            wp_from = course.waypoints[row_count-1]['latitude'], \
+                    course.waypoints[row_count-1]['longitude']
+
+        wp_to = value['latitude'], value['longitude']
+
+        bearing = int(round(nav.bearing(wp_from, wp_to), 0))
+        dist = round(nav.haversine_distance(wp_from, wp_to), 1)
+        total_dist += dist
+
+        row_count += 1
+        row_text = table_widths.format(key, value['name'], bearing, dist)
+        print_there(anchor[0]+row_count, anchor[1], row_text)
+
+    #Footer / Totals
+    row_text = table_widths.format('', '', '', total_dist)
+    print_there(anchor[0]+row_count+1, anchor[1], row_text)
+
+
+print_course_details((5, 0), course)
+
 #while True:
 #    try:
 #        with open(active_vessel_pickle, 'r') as f:

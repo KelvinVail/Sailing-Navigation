@@ -71,22 +71,30 @@ class Course:
             pickle.dump(self.waypoints, f)
 
 
-    def add_startline(self, pin_1, pin_2, start_from):
-        if type(pin_1) != float:
-            raise ValueError('"' + str(type(pin_1)) + '" is not a valid '
-                             'datatype for pin_1 of startline')
-        elif type(pin_2) != float:
-            raise ValueError('"' + str(type(pin_2)) + '" is not a valid '
-                             'datatype for pin_2 of startline')
+    def add_startline(self, lat_pin_1, lon_pin_1, lat_pin_2, lon_pin_2, start_from):
+        if type(lat_pin_1) != float:
+            raise ValueError('"' + str(type(lat_pin_1)) + '" is not a valid '
+                             'datatype for lat_pin_1 of startline')
+        elif type(lon_pin_1) != float:
+            raise ValueError('"' + str(type(lon_pin_1)) + '" is not a valid '
+                             'datatype for lon_pin_1 of startline')
+        elif type(lat_pin_2) != float:
+            raise ValueError('"' + str(type(lat_pin_2)) + '" is not a valid '
+                             'datatype for lat_pin_2 of startline')
+        elif type(lon_pin_2) != float:
+            raise ValueError('"' + str(type(lon_pin_2)) + '" is not a valid '
+                             'datatype for lon_pin_2 of startline')
         elif type(start_from) != str:
-            raise ValueError('"' + str(type(pin_2)) + '" is not a valid '
+            raise ValueError('"' + str(type(start_from)) + '" is not a valid '
                              'datatype for start_from of startline')
         elif start_from not in ['North', 'South', 'East', 'West']:
             raise ValueError('"' + start_from + '" is not a valid '
                              'value for start_from of startline')
         else:
-            self.startline = {'pin_1':pin_1,
-                              'pin_2':pin_2,
+            self.startline = {'lat_pin_1':lat_pin_1,
+                              'lon_pin_1':lon_pin_1,
+                              'lat_pin_2':lat_pin_2,
+                              'lon_pin_2':lon_pin_2,
                               'start_from':start_from}
 
 
