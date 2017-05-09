@@ -1,13 +1,20 @@
+import datetime
 import sys
 import os
 import modules.navigation as nav
+from modules.tide import tide_forecast
+from modules.weather import wind_forecast_nc
 from race_details.RORC_De_Guingand_Bowl_Race_2017.course_details \
         import CourseDetails
 
 
-course = CourseDetails().course
-#rows, columns = os.popen('stty size', 'r').read().split()
+TIDE_FILE = \
+'race_details/RORC_De_Guingand_Bowl_Race_2017/Grib/Tide/solent-currents.nc'
 
+WIND_FILE = \
+'race_details/RORC_De_Guingand_Bowl_Race_2017/Grib/Weather/wind-speed-and-direction.nc'
+
+course = CourseDetails().course
 
 def clear_terminal():
     print(chr(27) + "[2J") #Clear terminal
@@ -32,14 +39,40 @@ def print_course_details(anchor, course):
     table_widths = "{:>"+str(len(str(waypoint_count))+1)+"}" \
             " {:<"+str(name_width+1)+"}" \
             " {:>7}" \
-            " {:>9}"
+            " {:>9}" \
+            " {:>4}" \
+            " {:>4}" \
+            " {:>4}" \
+            " {:>4}"
     
     #Header
-    header = table_widths.format(' ', 'name', 'bearing', 'distance')
+    header = table_widths.format(' ',
+                                'name',
+                                'bearing',
+                                'distance',
+                                '',
+                                'tide',
+                                '',
+                                'wind')
     print_there(anchor[0], anchor[1], header)
 
     #Start
-    row_text = table_widths.format(0, 'START', '', '')
+    tide_rate, tide_dir = tide_forecast(TIDE_FILE,
+                                       course.startline['lat_pin_1'],
+                                       course.startline['lon_pin_1'],
+                                       course.start_time)
+    wind_rate, wind_dir = wind_forecast_nc(WIND_FILE,
+                                       course.startline['lat_pin_1'],
+                                       course.startline['lon_pin_1'],
+                                       course.start_time)
+    row_text = table_widths.format(0,
+                                   'START',
+                                   '',
+                                   '',
+                                   tide_dir,
+                                   tide_rate,
+                                   wind_dir,
+                                   wind_rate)
     print_there(anchor[0]+1, anchor[1], row_text)
 
     row_count = 1
@@ -59,15 +92,17 @@ def print_course_details(anchor, course):
         total_dist += dist
 
         row_count += 1
-        row_text = table_widths.format(key, value['name'], bearing, dist)
+        row_text = table_widths.format(key, value['name'], bearing, dist, '',
+                                       '', '', '')
         print_there(anchor[0]+row_count, anchor[1], row_text)
 
     #Footer / Totals
-    row_text = table_widths.format('', '', '', total_dist)
+    row_text = table_widths.format('', '', '', total_dist, '', '', '', '')
     print_there(anchor[0]+row_count+1, anchor[1], row_text)
 
 
 print_course_details((5, 0), course)
+print(course.start_time)
 
 #while True:
 #    try:

@@ -1,5 +1,5 @@
 from modules.course import Course
-
+import datetime
 
 class CourseDetails:
 
@@ -7,6 +7,9 @@ class CourseDetails:
     def __init__(self):
         self.filename = 'RORC De Guingand Bowl Race 2017'
         self.course = Course(self.filename)
+
+        self.course.add_start_time(datetime.datetime(2017, 5, 13, 9, 20))
+
         #Cowes RYS Startline
         self.course.add_startline(50.767, -1.301, 50.787, -1.309, 'West')
 

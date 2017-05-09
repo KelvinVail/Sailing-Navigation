@@ -22,6 +22,11 @@ class Course:
             self.course_name = 'defualt_course'
             self.waypoints = {}
             self.startline = {}
+            self.start_time = None
+
+
+    def add_start_time(self, start_time):
+        self.start_time = start_time
 
 
     def add_waypoint(self, order, key=None, value=None):
