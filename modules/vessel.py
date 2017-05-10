@@ -73,6 +73,7 @@ class Vessel:
 
 
     def get_target(self, SWS, SWA):
+        SWA = abs(SWA)
         line_number = (int(round(SWS, 0)) * 181) + int(round(SWA, 0)) + 1
         if line_number <= len(self.line_offset):
             self.polar_file.seek(self.line_offset[line_number])

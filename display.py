@@ -4,6 +4,8 @@ import os
 import modules.navigation as nav
 from modules.tide import tide_forecast
 from modules.weather import wind_forecast_nc
+from modules.vessel import Vessel
+from modules.vessel import FileAccessWrapper
 from race_details.RORC_De_Guingand_Bowl_Race_2017.course_details \
         import CourseDetails
 
@@ -15,6 +17,8 @@ WIND_FILE = \
 'race_details/RORC_De_Guingand_Bowl_Race_2017/Grib/Weather/wind-speed-and-direction.nc'
 
 course = CourseDetails().course
+polar_file = FileAccessWrapper('modules/process/inter_polar.csv')
+vessel = Vessel(polar_file)
 
 def clear_terminal():
     print(chr(27) + "[2J") #Clear terminal
@@ -45,7 +49,8 @@ def print_course_details(anchor, course):
             " {:>4}" \
             " {:>4}" \
             " {:>4}" \
-            " {:>4}"
+            " {:>4}" \
+            " {:>7}"
     
     #Header
     header = table_widths.format(' ',
@@ -57,7 +62,8 @@ def print_course_details(anchor, course):
                                 '',
                                 'wind',
                                 '',
-                                ' SWA')
+                                ' SWA',
+                                'target')
     print_there(anchor[0], anchor[1], header)
 
     #Start
@@ -83,7 +89,8 @@ def print_course_details(anchor, course):
                                    wind_dir,
                                    wind_rate,
                                    SWD_dir,
-                                   SWD_rate)
+                                   SWD_rate,
+                                   '')
     print_there(anchor[0]+1, anchor[1], row_text)
 
     row_count = 1
@@ -101,17 +108,20 @@ def print_course_details(anchor, course):
         
         bearing = int(round(nav.bearing(wp_from, wp_to), 0))
         SWA = nav.SWA_forecast(bearing, SWD_dir)
+        if SWA > 180:
+            SWA = -(360 - SWA)
+        target = round(vessel.get_target(SWD_rate, SWA), 1)
         dist = round(nav.haversine_distance(wp_from, wp_to), 1)
         total_dist += dist
 
         row_count += 1
         row_text = table_widths.format(key, value['name'], bearing, dist, '',
-                                       '', '', '', SWA, SWD_rate)
+                                       '', '', '', SWA, SWD_rate, target)
         print_there(anchor[0]+row_count, anchor[1], row_text)
 
     #Footer / Totals
     row_text = table_widths.format('', '', '', total_dist, '', '', '', '', '',
-                                  '')
+                                  '', '')
     print_there(anchor[0]+row_count+1, anchor[1], row_text)
 
 
