@@ -6,31 +6,32 @@ from netCDF4 import Dataset
 
 
 def wind_forecast_nc(file_path, lat, lon, time_stamp):
-    time_stamp_dec = int(time_stamp.strftime('%Y%m%d'))
-    secs = (time_stamp.hour*3600 + time_stamp.minute*60 +
-            time_stamp.second)/86400.0
-    time_stamp_dec += secs
 
     data = Dataset(file_path)
+
+    forecast_d, forecast_t = \
+        data.variables['time'].getncattr('units').split(' ')[-2:]
+    forecast_time = datetime.datetime(int(forecast_d.split('-')[0]),
+                                      int(forecast_d.split('-')[1]),
+                                      int(forecast_d.split('-')[2]),
+                                      int(forecast_t.split(':')[0]),
+                                      int(forecast_t.split(':')[1]),
+                                      int(forecast_t.split(':')[2]))
+
+    unit_time = round(((time_stamp - forecast_time).total_seconds()) / 3600, 2)
+
     lats = data.variables['lat'][:]
     lons = data.variables['lon'][:]
     time = data.variables['time'][:]
 
     lat_idx = np.abs(lats - lat).argmin()
     lon_idx = np.abs(lons - lon).argmin()
-    #TODO
-    #time is set as hours since forecast
-    #figure out how to get forecast time from file
-    time_stamp_dec = 99
-    time_idx = np.abs(time - time_stamp_dec).argmin()
+    time_idx = np.abs(time - unit_time).argmin()
 
     v = data.variables['var33'][time_idx, lat_idx, lon_idx]
     u = data.variables['var34'][time_idx, lat_idx, lon_idx]
-    print(v, u)
-    v = round(v - (v*2), 2)
-    u = round(u - (u*2), 2)
-    print(v, u)
-    print(time)
+    v = v - (v*2)
+    u = u - (u*2)
 
     h = round(math.sqrt(v**2 + u**2) * 1.94384, 2)
     d = int(round(math.degrees(math.atan2(v, u))%360, 2))

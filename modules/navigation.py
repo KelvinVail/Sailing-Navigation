@@ -312,5 +312,22 @@ def SWD(boat_speed, heading, AWS, AWD):
 #    return round(math.degrees(math.atan(u/v))%360, 1)
 
 
+def SWD_forecast(w_dir, w_rate, t_dir, t_rate):
+    u = t_rate * \
+    math.sin(math.radians(t_dir))-(w_rate*math.cos(math.radians(w_dir)))
+    v = t_rate * \
+    math.cos(math.radians(t_dir))-(w_rate*math.cos(math.radians(w_dir)))
+    s_rate = round(math.sqrt(u*u + v*v), 1)
+    v = v + (v*2)
+    u = u + (u*2)
+    s_dir_deg = math.degrees(math.atan(u/v))+180
+    s_dir = round(s_dir_deg%360, 1)
+    return s_rate, int(round(s_dir, 0))
+
+
+def SWA_forecast(heading, s_dir):
+    return int(round((s_dir - heading)%360, 0))
+
+
 if __name__ == '__main__':
     print(get_waypoint_list('~/MarkListTwo.csv'))

@@ -18,6 +18,8 @@ from modules.navigation import TWS
 from modules.navigation import TWD
 from modules.navigation import SWS
 from modules.navigation import SWD
+from modules.navigation import SWD_forecast
+from modules.navigation import SWA_forecast
 from modules.vessel import Vessel
 from modules.course import Course
 from modules.polar import Polar
@@ -189,6 +191,33 @@ class TestNavigation(unittest.TestCase):
         AWD = 50
         actual = SWD(boat_speed, heading, AWS, AWD)
         self.assertEqual(expected, actual)
+
+
+    def test_SWD_forecast(self):
+        expected = 5.7, 233
+        w_dir = 227
+        w_rate = 5.24
+        t_dir = 96
+        t_rate = 0.96
+        actual = SWD_forecast(w_dir, w_rate, t_dir, t_rate)
+        self.assertEqual(expected, actual)
+
+
+    def test_SWA_forecast(self):
+        expected = 187
+        heading = 48
+        s_dir = 234.5
+        actual = SWA_forecast(heading, s_dir)
+        self.assertEqual(expected, actual)
+
+
+    def test_SWA_forecast_2(self):
+        expected = 180
+        heading = 170
+        s_dir = 350
+        actual = SWA_forecast(heading, s_dir)
+        self.assertEqual(expected, actual)
+
 
     def test_get_waypoint_details(self):
         pass

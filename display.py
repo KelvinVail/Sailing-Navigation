@@ -43,6 +43,8 @@ def print_course_details(anchor, course):
             " {:>4}" \
             " {:>4}" \
             " {:>4}" \
+            " {:>4}" \
+            " {:>4}" \
             " {:>4}"
     
     #Header
@@ -53,7 +55,9 @@ def print_course_details(anchor, course):
                                 '',
                                 'tide',
                                 '',
-                                'wind')
+                                'wind',
+                                '',
+                                ' SWA')
     print_there(anchor[0], anchor[1], header)
 
     #Start
@@ -65,6 +69,11 @@ def print_course_details(anchor, course):
                                        course.startline['lat_pin_1'],
                                        course.startline['lon_pin_1'],
                                        course.start_time)
+    SWD_rate, SWD_dir = nav.SWD_forecast(wind_dir,
+                                     wind_rate,
+                                     tide_dir,
+                                     tide_rate)
+
     row_text = table_widths.format(0,
                                    'START',
                                    '',
@@ -72,7 +81,9 @@ def print_course_details(anchor, course):
                                    tide_dir,
                                    tide_rate,
                                    wind_dir,
-                                   wind_rate)
+                                   wind_rate,
+                                   SWD_dir,
+                                   SWD_rate)
     print_there(anchor[0]+1, anchor[1], row_text)
 
     row_count = 1
@@ -87,22 +98,24 @@ def print_course_details(anchor, course):
 
         wp_to = value['latitude'], value['longitude']
 
+        
         bearing = int(round(nav.bearing(wp_from, wp_to), 0))
+        SWA = nav.SWA_forecast(bearing, SWD_dir)
         dist = round(nav.haversine_distance(wp_from, wp_to), 1)
         total_dist += dist
 
         row_count += 1
         row_text = table_widths.format(key, value['name'], bearing, dist, '',
-                                       '', '', '')
+                                       '', '', '', SWA, SWD_rate)
         print_there(anchor[0]+row_count, anchor[1], row_text)
 
     #Footer / Totals
-    row_text = table_widths.format('', '', '', total_dist, '', '', '', '')
+    row_text = table_widths.format('', '', '', total_dist, '', '', '', '', '',
+                                  '')
     print_there(anchor[0]+row_count+1, anchor[1], row_text)
 
 
 print_course_details((5, 0), course)
-print(course.start_time)
 
 #while True:
 #    try:
