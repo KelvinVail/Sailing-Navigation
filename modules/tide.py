@@ -39,12 +39,12 @@ def tide_forecast(grib_path, lat, lon, time_stamp):
 
     v = data.variables['var49'][time_idx, lat_idx, lon_idx]
     u = data.variables['var50'][time_idx, lat_idx, lon_idx]
-
-    h = round(math.sqrt(v**2 + u**2) * 1.94384, 1)
-    d = round(math.degrees(math.atan2(v, u))%360, 0)
-
-    if not math.isnan(d):
-        d = int(d)
+    if str(v) != '--':
+        h = round(math.sqrt(v**2 + u**2) * 1.94384, 1)
+        d = int(round(math.degrees(math.atan2(v, u))%360, 0))
+    else:
+        h = 0
+        d = 0
 
     return h, d
 

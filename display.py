@@ -3,6 +3,7 @@ import sys
 import os
 import modules.navigation as nav
 from modules.tide import tide_forecast
+from modules.tide import tide_total
 from modules.weather import wind_forecast_nc
 from modules.vessel import Vessel
 from modules.vessel import FileAccessWrapper
@@ -50,8 +51,11 @@ def print_course_details(anchor, course):
             " {:>4}" \
             " {:>4}" \
             " {:>4}" \
+            " {:>4}" \
+            " {:>4}" \
             " {:>7}" \
-            " {:>9}"
+            " {:>9}" \
+            " {:>4}"
     
     #Header
     header = table_widths.format(' ',
@@ -63,9 +67,12 @@ def print_course_details(anchor, course):
                                 '',
                                 'wind',
                                 '',
-                                ' SWA',
+                                'SWD',
+                                 '',
+                                 'SWA',
                                 'target',
-                                'ETA_UTC')
+                                'ETA_UTC',
+                                 'CTS')
     print_there(anchor[0], anchor[1], header)
 
     #Start
@@ -96,7 +103,10 @@ def print_course_details(anchor, course):
                                    SWD_dir,
                                    SWD_rate,
                                    '',
-                                   display_ETA)
+                                   '',
+                                   '',
+                                   display_ETA,
+                                  '')
     print_there(anchor[0]+1, anchor[1], row_text)
 
     row_count = 1
@@ -134,7 +144,9 @@ def print_course_details(anchor, course):
                                          tide_rate)
         SWA = nav.SWA_forecast(bearing, SWD_dir)
         
-
+        tide_offset = tide_total(TIDE_FILE, wp_from, wp_to, rough_ETA, target)
+        course_to_steer = int(round(nav.bearing(tide_offset, wp_to), 0))
+         
         row_count += 1
         row_text = table_widths.format(key,
                                        value['name'],
@@ -144,15 +156,18 @@ def print_course_details(anchor, course):
                                        tide_rate,
                                        wind_dir,
                                        wind_rate,
+                                       SWD_dir,
+                                       SWD_rate,
                                        SWA,
                                        SWD_rate,
                                        target,
-                                       display_ETA)
+                                       display_ETA,
+                                       course_to_steer)
         print_there(anchor[0]+row_count, anchor[1], row_text)
 
     #Footer / Totals
     row_text = table_widths.format('', '', '', total_dist, '', '', '', '', '',
-                                  '', '', '')
+                                  '', '', '', '', '', '')
     print_there(anchor[0]+row_count+1, anchor[1], row_text)
 
 

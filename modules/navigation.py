@@ -316,16 +316,38 @@ def SWD(boat_speed, heading, AWS, AWD):
 
 
 def SWD_forecast(w_dir, w_rate, t_dir, t_rate):
-    u = t_rate * \
-    math.sin(math.radians(t_dir))-(w_rate*math.cos(math.radians(w_dir)))
-    v = t_rate * \
-    math.cos(math.radians(t_dir))-(w_rate*math.cos(math.radians(w_dir)))
-    s_rate = round(math.sqrt(v**2 + u**2), 1)
-    v = v + (v*2)
-    u = u + (u*2)
-    s_dir_deg = math.degrees(math.atan(u/v))+180
-    s_dir = round(s_dir_deg%360, 1)
-    return s_rate, int(round(s_dir, 0))
+
+    # reverse the tide direction to get the wind direction
+    t_dir = (t_dir - 180)%360
+
+    #fictional starting waypoint
+    wp_start = (50, -2)
+    
+    #travel with wind
+    #estimated_position(p1, bearing, speed, elapsed_seconds):
+    wp_next = estimated_position(wp_start, t_dir, t_rate, 3600)
+
+    #travel against wind
+    wp_final = estimated_position(wp_next, w_dir, w_rate, 3600)
+
+    #what's the bearing from the start wp to the final
+    SWD_dir = int(round(bearing(wp_start, wp_final), 0))
+
+    #what's the distance from the final wp to the start
+    dist = round(haversine_distance(wp_final, wp_start), 1)
+
+    return dist, SWD_dir
+
+#    u = t_rate * \
+#    math.sin(math.radians(t_dir))-(w_rate*math.cos(math.radians(w_dir)))
+#    v = t_rate * \
+#    math.cos(math.radians(t_dir))-(w_rate*math.cos(math.radians(w_dir)))
+#    s_rate = round(math.sqrt(v**2 + u**2), 1)
+#    v = v + (v*2)
+#    u = u + (u*2)
+#    s_dir_deg = math.degrees(math.atan(u/v))+180
+#    s_dir = round(s_dir_deg%360, 1)
+#    return s_rate, int(round(s_dir, 0))
 
 
 def SWA_forecast(heading, s_dir):
