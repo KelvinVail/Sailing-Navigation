@@ -33,8 +33,8 @@ def wind_forecast_nc(file_path, lat, lon, time_stamp):
     v = v - (v*2)
     u = u - (u*2)
 
-    h = round(math.sqrt(v**2 + u**2) * 1.94384, 2)
-    d = int(round(math.degrees(math.atan2(v, u))%360, 2))
+    h = round(math.sqrt(v**2 + u**2) * 1.94384, 1)
+    d = int(round(math.degrees(math.atan2(v, u))%360, 0))
 
     return h, d
 

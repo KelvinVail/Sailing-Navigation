@@ -11,7 +11,7 @@ from race_details.RORC_De_Guingand_Bowl_Race_2017.course_details \
 
 
 TIDE_FILE = \
-'race_details/RORC_De_Guingand_Bowl_Race_2017/Grib/Tide/solent-currents.nc'
+'race_details/RORC_De_Guingand_Bowl_Race_2017/Grib/Tide/'
 
 WIND_FILE = \
 'race_details/RORC_De_Guingand_Bowl_Race_2017/Grib/Weather/wind-speed-and-direction.nc'
@@ -50,7 +50,8 @@ def print_course_details(anchor, course):
             " {:>4}" \
             " {:>4}" \
             " {:>4}" \
-            " {:>7}"
+            " {:>7}" \
+            " {:>9}"
     
     #Header
     header = table_widths.format(' ',
@@ -63,22 +64,26 @@ def print_course_details(anchor, course):
                                 'wind',
                                 '',
                                 ' SWA',
-                                'target')
+                                'target',
+                                'ETA_UTC')
     print_there(anchor[0], anchor[1], header)
 
     #Start
     tide_rate, tide_dir = tide_forecast(TIDE_FILE,
                                        course.startline['lat_pin_1'],
                                        course.startline['lon_pin_1'],
-                                       course.start_time)
+                                       course.start_time_UTC)
     wind_rate, wind_dir = wind_forecast_nc(WIND_FILE,
                                        course.startline['lat_pin_1'],
                                        course.startline['lon_pin_1'],
-                                       course.start_time)
+                                       course.start_time_UTC)
+    
     SWD_rate, SWD_dir = nav.SWD_forecast(wind_dir,
                                      wind_rate,
                                      tide_dir,
                                      tide_rate)
+    ETA = course.start_time_UTC
+    display_ETA = ETA.time().strftime('%H:%M')
 
     row_text = table_widths.format(0,
                                    'START',
@@ -90,7 +95,8 @@ def print_course_details(anchor, course):
                                    wind_rate,
                                    SWD_dir,
                                    SWD_rate,
-                                   '')
+                                   '',
+                                   display_ETA)
     print_there(anchor[0]+1, anchor[1], row_text)
 
     row_count = 1
@@ -105,23 +111,48 @@ def print_course_details(anchor, course):
 
         wp_to = value['latitude'], value['longitude']
 
-        
         bearing = int(round(nav.bearing(wp_from, wp_to), 0))
         SWA = nav.SWA_forecast(bearing, SWD_dir)
-        if SWA > 180:
-            SWA = -(360 - SWA)
         target = round(vessel.get_target(SWD_rate, SWA), 1)
         dist = round(nav.haversine_distance(wp_from, wp_to), 1)
         total_dist += dist
+        rough_ETA = ETA + datetime.timedelta(hours=nav.rough_ETA(dist, target))
+        ETA = rough_ETA
+        display_ETA = rough_ETA.time().strftime('%H:%M')
+
+        tide_rate, tide_dir = tide_forecast(TIDE_FILE,
+                                           wp_to[0],
+                                           wp_to[1],
+                                           rough_ETA)
+        wind_rate, wind_dir = wind_forecast_nc(WIND_FILE,
+                                           wp_to[0],
+                                           wp_to[1],
+                                           rough_ETA)
+        SWD_rate, SWD_dir = nav.SWD_forecast(wind_dir,
+                                         wind_rate,
+                                         tide_dir,
+                                         tide_rate)
+        SWA = nav.SWA_forecast(bearing, SWD_dir)
+        
 
         row_count += 1
-        row_text = table_widths.format(key, value['name'], bearing, dist, '',
-                                       '', '', '', SWA, SWD_rate, target)
+        row_text = table_widths.format(key,
+                                       value['name'],
+                                       bearing,
+                                       dist,
+                                       tide_dir,
+                                       tide_rate,
+                                       wind_dir,
+                                       wind_rate,
+                                       SWA,
+                                       SWD_rate,
+                                       target,
+                                       display_ETA)
         print_there(anchor[0]+row_count, anchor[1], row_text)
 
     #Footer / Totals
     row_text = table_widths.format('', '', '', total_dist, '', '', '', '', '',
-                                  '', '')
+                                  '', '', '')
     print_there(anchor[0]+row_count+1, anchor[1], row_text)
 
 

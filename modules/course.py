@@ -25,8 +25,8 @@ class Course:
             self.start_time = None
 
 
-    def add_start_time(self, start_time):
-        self.start_time = start_time
+    def add_start_time_UTC(self, start_time):
+        self.start_time_UTC = start_time
 
 
     def add_waypoint(self, order, key=None, value=None):

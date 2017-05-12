@@ -8,51 +8,56 @@ class CourseDetails:
         self.filename = 'RORC De Guingand Bowl Race 2017'
         self.course = Course(self.filename)
 
-        self.course.add_start_time(datetime.datetime(2017, 5, 13, 9, 20))
+        self.course.add_start_time_UTC(datetime.datetime(2017, 5, 13, 8, 20))
 
         #Cowes RYS Startline
         self.course.add_startline(50.767, -1.301, 50.787, -1.309, 'West')
 
-        self.course.add_waypoint(1, 'name', 'Snowden Buoy')
-        self.course.add_waypoint(1, 'latitude', 50.77)
-        self.course.add_waypoint(1, 'longitude', -1.2958)
+        self.course.add_waypoint(1, 'name', 'Cowes No.2 Buoy')
+        self.course.add_waypoint(1, 'latitude', 50.767)
+        self.course.add_waypoint(1, 'longitude', -1.298)
 
         self.course.add_waypoint(2, 'name', 'No Mans Land Fort')
-        self.course.add_waypoint(2, 'latitude', 50.7406)
-        self.course.add_waypoint(2, 'longitude', -1.0933)
+        self.course.add_waypoint(2, 'latitude', 50.74)
+        self.course.add_waypoint(2, 'longitude', -1.094)
 
         self.course.add_waypoint(3, 'name', 'Owers Buoy')
-        self.course.add_waypoint(3, 'latitude', 50.6432)
-        self.course.add_waypoint(3, 'longitude', -0.6848)
+        self.course.add_waypoint(3, 'latitude', 50.643)
+        self.course.add_waypoint(3, 'longitude', -0.685)
 
-        self.course.add_waypoint(4, 'name', 'St Catherines Point')
-        self.course.add_waypoint(4, 'latitude', 50.5756)
-        self.course.add_waypoint(4, 'longitude', -1.2978)
+        self.course.add_waypoint(4, 'name', 'Littlehampton Outfall')
+        self.course.add_waypoint(4, 'latitude', 50.77)
+        self.course.add_waypoint(4, 'longitude', -0.509)
 
-        self.course.add_waypoint(5, 'name', 'ODAS Buoy (Southern)')
-        self.course.add_waypoint(5, 'latitude', 50.4335)
-        self.course.add_waypoint(5, 'longitude', -1.81)
+        self.course.add_waypoint(5, 'name', 'Waypoint 1')
+        self.course.add_waypoint(5, 'latitude', 50.533)
+        self.course.add_waypoint(5, 'longitude', -0.567)
 
-        self.course.add_waypoint(6, 'name', 'Poole Bar Buoy (No. 1)')
-        self.course.add_waypoint(6, 'latitude', 50.6548)
-        self.course.add_waypoint(6, 'longitude', -1.919)
+        self.course.add_waypoint(6, 'name', 'Waypoint 2')
+        self.course.add_waypoint(6, 'latitude', 50.533)
+        self.course.add_waypoint(6, 'longitude', -0.817)
 
-        self.course.add_waypoint(7, 'name', 'SW Shingles Buoy')
-        self.course.add_waypoint(7, 'latitude', 50.6548)
-        self.course.add_waypoint(7, 'longitude', -1.6253)
+        self.course.add_waypoint(7, 'name', 'South Pullar Buoy')
+        self.course.add_waypoint(7, 'latitude', 50.647)
+        self.course.add_waypoint(7, 'longitude', -0.8215)
 
-        self.course.add_waypoint(8, 'name', 'ODAS Buoy (Northern)')
-        self.course.add_waypoint(8, 'latitude', 50.5532)
-        self.course.add_waypoint(8, 'longitude', -1.7195)
+        self.course.add_waypoint(8, 'name', 'Nab Tower')
+        self.course.add_waypoint(8, 'latitude', 50.668)
+        self.course.add_waypoint(8, 'longitude', -0.9525)
 
-        self.course.add_waypoint(9, 'name', 'Poole Bar Buoy (No. 1)')
-        self.course.add_waypoint(9, 'latitude', 50.6548)
-        self.course.add_waypoint(9, 'longitude', -1.919)
+        self.course.add_waypoint(9, 'name', 'St Catherines Light')
+        self.course.add_waypoint(9, 'latitude', 50.568)
+        self.course.add_waypoint(9, 'longitude', -1.30)
 
-        self.course.add_waypoint(10, 'name', 'North Head Buoy')
-        self.course.add_waypoint(10, 'latitude', 50.7115)
-        self.course.add_waypoint(10, 'longitude', -1.592)
+        self.course.add_waypoint(10, 'name', 'Poole Bar No.1')
+        self.course.add_waypoint(10, 'latitude', 50.655)
+        self.course.add_waypoint(10, 'longitude', -1.919)
 
-        self.course.add_waypoint(11, 'name', 'FINISH - Lymington Bank Buoy')
-        self.course.add_waypoint(11, 'latitude', 50.7183)
-        self.course.add_waypoint(11, 'longitude', -1.5142)
+        self.course.add_waypoint(11, 'name', 'Special Mark FI(5) Y.20s')
+        self.course.add_waypoint(11, 'latitude', 50.7125)
+        self.course.add_waypoint(11, 'longitude', -1.615)
+
+        self.course.add_waypoint(12, 'name', 'North Head Buoy')
+        self.course.add_waypoint(12, 'latitude', 50.7115)
+        self.course.add_waypoint(12, 'longitude', -1.592)
+

@@ -194,6 +194,9 @@ def CMG(sog, cog, WP_bearing):
     return round(math.cos(diff)*sog, 4)
 
 
+def rough_ETA(distance, speed):
+    return distance / speed
+
 #TODO Create a function that calculates the shortest distance through a set of
 #gates
 
@@ -317,7 +320,7 @@ def SWD_forecast(w_dir, w_rate, t_dir, t_rate):
     math.sin(math.radians(t_dir))-(w_rate*math.cos(math.radians(w_dir)))
     v = t_rate * \
     math.cos(math.radians(t_dir))-(w_rate*math.cos(math.radians(w_dir)))
-    s_rate = round(math.sqrt(u*u + v*v), 1)
+    s_rate = round(math.sqrt(v**2 + u**2), 1)
     v = v + (v*2)
     u = u + (u*2)
     s_dir_deg = math.degrees(math.atan(u/v))+180
@@ -326,8 +329,10 @@ def SWD_forecast(w_dir, w_rate, t_dir, t_rate):
 
 
 def SWA_forecast(heading, s_dir):
-    return int(round((s_dir - heading)%360, 0))
-
+    SWA = int(round((s_dir - heading)%360, 0))
+    if SWA > 180:
+        SWA = -(360 - SWA)
+    return SWA
 
 if __name__ == '__main__':
     print(get_waypoint_list('~/MarkListTwo.csv'))
