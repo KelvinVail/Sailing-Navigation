@@ -25,6 +25,7 @@ from modules.course import Course
 from modules.polar import Polar
 from modules.polar import FileAccessWrapper
 from modules.display import print_course_details
+from modules.tide import tide_total
 
 #1nm = 1.851999km
 
@@ -204,7 +205,7 @@ class TestNavigation(unittest.TestCase):
 
 
     def test_SWA_forecast(self):
-        expected = 187
+        expected = -173
         heading = 48
         s_dir = 234.5
         actual = SWA_forecast(heading, s_dir)
@@ -928,67 +929,24 @@ class TestDisplay(unittest.TestCase):
 
 
     def setUp(self):
-        pass
-
-
-
-class FakePolarFile:
-
-
-
-
-    def test_ValueError_if_an_invalid_start_from_datatype_is_passed_to_add_startline(self):
-        course = Course()
-        self.assertRaises(ValueError, 
-                          course.add_startline, 0.00, 0.00, 0.00)
-
-
-    def test_ValueError_if_an_invalid_start_from_value_is_passed_to_add_startline(self):
-        course = Course()
-        self.assertRaises(ValueError, 
-                          course.add_startline, 0.00, 0.00, 'x')
-
-
-    def test_that_startline_gets_pickled(self):
-        course = Course(self.filename)
-        expected = {'pin_1':-1.23,
-                    'pin_2':9.87,
-                    'start_from':'North'}
-        course.add_startline(-1.23, 9.87, 'North')
-        course.pickle_startline()
-        course = None
-        course = Course(self.filename)
-        actual = course.startline
-        self.assertDictEqual(expected, actual)
-
-
-class TestPolar(unittest.TestCase):
-
-
-    def setUp(self):
-        self.polar_file = FakePolarFile()
-        #self.polar_file = \
-        #FileAccessWrapper('modules/process/inter_polar.csv')
-        self.polar = Polar(self.polar_file)
-
-
-    def test_that_data_is_retrurned_from_a_polar_file(self):
-        SWS = 10
-        SWA = 90
-        expected = SWS * SWA
-        actual = self.polar.get_target(SWS, SWA)
-        self.assertEqual(expected, actual)
-
-
-class TestDisplay(unittest.TestCase):
-
-
-    def setUp(self):
         self.course = FakeCourse().course
 
 
     def test_print_course_details(self):
         pass
+
+
+class TestTide(unittest.TestCase):
+
+
+    def test_that_tide_total_runs(self):
+        grib_path = \
+            'race_details/RORC_De_Guingand_Bowl_Race_2017/Grib/Tide/'
+        wp_from = (50.4335, -1.81)
+        wp_to = (50.6548, -1.919)
+        start_time = datetime(2017, 5, 13, 10, 00)
+        speed = 6
+        actual = tide_total(grib_path, wp_from, wp_to, start_time, speed)
 
 
 class FakePolarFile:

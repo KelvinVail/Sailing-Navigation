@@ -1,5 +1,6 @@
 import datetime
 import math
+import modules.navigation as nav
 import numpy as np
 from netCDF4 import Dataset
 
@@ -46,3 +47,54 @@ def tide_forecast(grib_path, lat, lon, time_stamp):
         d = int(d)
 
     return h, d
+
+
+def tide_total(grib_path, wp_from, wp_to, start_time, speed):
+    step_size = 0.25 # 15 minutes
+    dist = nav.haversine_distance(wp_from, wp_to)
+    bearing = nav.bearing(wp_from, wp_to)
+    ETA_hr = dist / speed
+    partial_step = None
+    next_position = wp_from
+    #if ETA is more than 15 minutes calculate total tide at 15 miunute steps
+    if ETA_hr > step_size:
+        steps = ETA_hr / step_size
+        whole_steps = int(steps)
+        partial_step = steps - whole_steps
+        for step in range(0, whole_steps):
+            time_from_start = start_time + datetime.timedelta(hours=(step *
+                                                                     step_size))
+            seconds_from_start = (step * step_size) * 3600
+            step_position = nav.estimated_position(wp_from, bearing, speed,
+                                                   seconds_from_start)
+            tide_at_step = tide_forecast(grib_path, step_position[0],
+                                         step_position[1], time_from_start)
+            tide_during_step = tide_at_step[0] * step_size
+            next_position = nav.estimated_position(next_position,
+                                                   tide_at_step[1],
+                                                   tide_during_step,
+                                                   step_size * 3600)
+            #print(time_from_start, next_position, tide_at_step)
+
+    if partial_step != None or ETA_hr <= step_size:
+        if ETA_hr <= step_size:
+            step_size = ETA_hr
+            time_from_start = start_time + datetime.timedelta(hours=step_size)
+        else:
+            step_size = ((whole_steps-1) * step_size) + (step_size * partial_step)
+            time_from_start = start_time + datetime.timedelta(hours=step_size)
+            step_size = partial_step
+
+        seconds_from_start = (time_from_start - start_time).total_seconds()
+        step_position = nav.estimated_position(wp_from, bearing, speed,
+                                               seconds_from_start)
+        tide_at_step = tide_forecast(grib_path, step_position[0],
+                                     step_position[1], time_from_start)
+        tide_during_step = tide_at_step[0] * step_size
+        next_position = nav.estimated_position(next_position,
+                                               tide_at_step[1],
+                                               tide_during_step,
+                                               step_size * 3600)
+        #print(time_from_start, next_position, tide_at_step)
+
+    return next_position
