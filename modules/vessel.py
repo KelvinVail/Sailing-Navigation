@@ -80,7 +80,7 @@ class Vessel:
             l_SWS, l_SWA, target_boat_speed = self.polar_file.readline().split(',')
             self.polar_file.seek(0)
             self.target_boat_speed = round(float(target_boat_speed), 2)
-            return round(float(target_boat_speed), 2)
+            return round(float(target_boat_speed), 1)
 
 
     def NMEAInput(self, nmea_string):
@@ -115,7 +115,8 @@ class Vessel:
             if head == '$IIVHW': #Heading & Speed Through Water
                 h = line.split(',')[1]
                 if len(h) > 0:
-                    self.heading_true = float(line.split(',')[1])
+                    self.heading_true = int(round(float(line.split(',')[1]),
+                                                  0))
                     self.heading_mag = float(line.split(',')[3])
                     b = line.split(',')[5]
                     if len(b) > 0:
@@ -180,7 +181,10 @@ class Vessel:
                                    self.heading_true, 
                                    self.AWS, 
                                    self.AWD)                
-                self.SWA = round((self.SWD - self.heading_true)%360, 1)
+
+                self.SWA = int(round((self.SWD - self.heading_true)%360, 0))
+                if self.SWA > 180:
+                    self.SWA = -(360 - self.SWA)
 
                 if self.polar_file != None:
                     self.get_target(self.SWS, self.SWA)
