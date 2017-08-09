@@ -10,7 +10,7 @@ import datetime
 import time
 import pickle
 
-polar_file = FileAccessWrapper('/home/pi/github/Sailing-Navigation/modules/process/inter_polar.csv')
+polar_file = FileAccessWrapper('/home/kelvin/github/Sailing-Navigation/modules/process/inter_polar.csv')
 vessel = Vessel(polar_file)
 connected =0
 clear_terminal()
@@ -18,7 +18,7 @@ clear_terminal()
 while connected == 0:
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect(('localhost', 10110))
+        client_socket.connect(('192.168.129.1', 10110))
         connected = 1
     except:
         a =1

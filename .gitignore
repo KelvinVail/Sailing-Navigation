@@ -4,3 +4,8 @@
 *.swp
 *.grib2
 *.nc
+*.bz2
+*.pol
+*.pdf
+*.grb
+*.xml
